@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../shared/dist/index.js", "../dist/index.js"],
+  "sourcesContent": ["export default \"D\";\nconsole.log(\"C\");\n", "import \"javelin-fps-shared\";\nconst ws = new WebSocket(\"ws://localhost:8000\");\nws.addEventListener(\"open\", async () => {\n    const remote = new RTCPeerConnection();\n    const offer = await remote.createOffer();\n    ws.send(JSON.stringify(Object.assign({ kind: \"offer\" }, offer)));\n});\n"],
+  "mappings": "MACA,QAAQ,IAAI,KCAZ,GAAM,GAAK,GAAI,WAAU,uBACzB,EAAG,iBAAiB,OAAQ,SAAY,CAEpC,GAAM,GAAQ,KAAM,AADL,IAAI,qBACQ,cAC3B,EAAG,KAAK,KAAK,UAAU,OAAO,OAAO,CAAE,KAAM,SAAW",
+  "names": []
+}

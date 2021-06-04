@@ -1,0 +1,27 @@
+{
+  "name": "javelin-fps-client",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Javelin FPS client",
+  "types": "src/index.js",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b && npm run bundle -- --build",
+    "watch": "tsc -b && (tsc -b -w & npm run bundle -- --watch)",
+    "bundle": "node -r esbuild-register scripts/build.ts",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eric McDaniel <eric.g.mcdaniel@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@javelin/ecs": "1.0.0-alpha.6",
+    "@javelin/net": "1.0.0-alpha.6",
+    "@types/live-server": "^1.2.0",
+    "@types/minimist": "^1.2.1",
+    "babylonjs": "^4.2.0",
+    "javelin-fps-shared": "workspace:^0.0.1",
+    "live-server": "^1.2.1",
+    "minimist": "^1.2.5"
+  }
+}

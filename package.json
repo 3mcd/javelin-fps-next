@@ -1,0 +1,19 @@
+{
+  "name": "javelin-fps",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Javelin FPS example with Rapier physics",
+  "main": "index.js",
+  "devDependencies": {
+    "typescript": "^4.3.2"
+  },
+  "author": "Eric McDaniel <eric.g.mcdaniel@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "esbuild": "^0.12.6",
+    "esbuild-register": "^2.5.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

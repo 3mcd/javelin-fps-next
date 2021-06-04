@@ -1,0 +1,20 @@
+{
+  "name": "javelin-fps-shared",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Javelin FPS shared modules",
+  "type": "module",
+  "types": "src/index.js",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo skip"
+  },
+  "author": "Eric McDaniel <eric.g.mcdaniel@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@javelin/core": "1.0.0-alpha.5",
+    "@javelin/ecs": "1.0.0-alpha.6",
+    "@javelin/pack": "^1.0.0-alpha.5"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "javelin-fps-server",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Javelin FPS server",
+  "type": "module",
+  "types": "src/index.js",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "npm run start",
+    "start": "npm run build && node --experimental-specifier-resolution=node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "find ./node_modules/@a-type/rapier3d-node/dist -name \"*.ts\" -type f -delete"
+  },
+  "author": "Eric McDaniel <eric.g.mcdaniel@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@a-type/rapier3d-node": "^0.5.3-rc.2",
+    "@javelin/ecs": "1.0.0-alpha.6",
+    "@javelin/hrtime-loop": "1.0.0-alpha.3",
+    "@javelin/net": "1.0.0-alpha.6",
+    "@javelin/pack": "^1.0.0-alpha.5",
+    "@types/ws": "^7.4.4",
+    "javelin-fps-shared": "workspace:^0.0.1",
+    "node-datachannel": "^0.1.4",
+    "twilio": "^3.63.1",
+    "wrtc": "^0.4.7",
+    "ws": "^7.4.6"
+  },
+  "devDependencies": {
+    "@types/node": "^15.12.1"
+  }
+}
