@@ -27,19 +27,13 @@ const qryDynamic = createQuery(Transform, Quaternion, Velocity)
 
 const SYNC_BASIC: Query[] = [qryBodies, qryPlayers, qryWalls]
 
-function produceInitialMessage(client: Client) {
-  qryPlayers(client.producer.attach)
-  qryBodies(client.producer.attach)
-  qryWalls(client.producer.attach)
-}
-
 export function sysNet() {
   const { destroy } = useWorld()
   const { value: events } = useEvents()
   const clients = useClients()
   // create actors for newly connected clients
   for (const client of addedClients) {
-    produceInitialMessage(client)
+    SYNC_BASIC.forEach(q => q(client.producer.attach))
   }
   for (const client of removedClients) {
     qryPlayers((e, [p]) => {
