@@ -6,7 +6,12 @@ import {
   useMonitor,
   useWorld,
 } from "@javelin/ecs"
-import { createMessageProducer, encode, model } from "@javelin/net"
+import {
+  createMessage,
+  createMessageProducer,
+  encode,
+  model,
+} from "@javelin/net"
 import {
   Player,
   Quaternion,
@@ -14,7 +19,6 @@ import {
   Velocity,
   Wall,
 } from "javelin-fps-shared"
-import { Client } from "../../client"
 import { useClients } from "../effects/use_clients"
 import { addedClients, removedClients } from "../topics"
 
@@ -31,10 +35,11 @@ export function sysNet() {
   const { destroy } = useWorld()
   const { value: events } = useEvents()
   const clients = useClients()
-  // create actors for newly connected clients
+  // build initial view for newly connected clients
   for (const client of addedClients) {
     SYNC_BASIC.forEach(q => q(client.producer.attach))
   }
+  // destroy entities controlled by disconnected clients
   for (const client of removedClients) {
     qryPlayers((e, [p]) => {
       if (p.clientId === client.id) {
@@ -56,15 +61,16 @@ export function sysNet() {
     for (const [, client] of clients) {
       const unreliable = client.producer.take()
       if (!client.modelSent) {
-        model(reliable)
+        const message = createMessage()
+        model(message)
+        client.socket.send(encode(message))
         client.socket.send(encode(reliable))
-        client.socket.send(encode(unreliable))
         client.modelSent = true
       } else {
         client.socket.send(reliableEncoded)
-        if (client.channel.readyState === "open") {
-          client.channel.send(encode(unreliable))
-        }
+      }
+      if (client.channel.readyState === "open") {
+        client.channel.send(encode(unreliable))
       }
     }
   }
