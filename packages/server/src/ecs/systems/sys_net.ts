@@ -20,12 +20,14 @@ import {
   Velocity,
   Wall,
   createImmutableRef,
+  Sun,
 } from "javelin-fps-shared"
 import { useClients } from "../effects/use_clients"
 import { addedClients, removedClients } from "../topics"
 
 const useEvents = createImmutableRef(() => createMessageProducer())
 
+const qrySun = createQuery(Sun)
 const qryPlayers = createQuery(Player)
 const qryBodies = createQuery(Position, Rotation)
 const qryWalls = createQuery(Wall)
@@ -33,7 +35,7 @@ const qryDynamic = createQuery(Position, Rotation, Velocity)
 
 const tmpComponentUpdate: Component[] = []
 
-const SYNC_BASIC: Query[] = [qryBodies, qryPlayers, qryWalls]
+const SYNC_BASIC: Query[] = [qrySun, qryBodies, qryPlayers, qryWalls]
 
 export function sysNet() {
   const { destroy, tryGet } = useWorld()
@@ -71,6 +73,7 @@ export function sysNet() {
         client.producer.update(ed, tmpComponentUpdate, amplify)
       })
   })
+  qrySun((e, [s]) => events.patch(e, s, Infinity))
   // send updates
   if (useInterval((1 / 30) * 1000)) {
     const reliable = events.take()

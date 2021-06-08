@@ -21,7 +21,7 @@ async function main() {
   if (!client) {
     return
   }
-  const { id, channel, socket } = client
+  const { channel, socket } = client
   let bytes = 0
   let x = performance.now()
   function handleMessage({ data }: MessageEvent<string | ArrayBuffer>) {
@@ -39,7 +39,7 @@ async function main() {
   channel.addEventListener("message", handleMessage)
   socket.addEventListener("message", handleMessage)
   setInterval(function step() {
-    world.step(id)
+    world.step(client)
   }, (1 / 60) * 1000)
   ;(window as any).world = world
 }

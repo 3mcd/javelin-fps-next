@@ -5,7 +5,13 @@ const SERVER_HOSTNAME = `${
   hostname === "127.0.0.1" ? "localhost" : hostname
 }:8000`
 
-export async function connect() {
+export type Client = {
+  id: string
+  socket: WebSocket
+  channel: RTCDataChannel
+}
+
+export async function connect(): Promise<Client> {
   const iceServers = await (await fetch(`http://${SERVER_HOSTNAME}/ice`)).json()
   const remote = new RTCPeerConnection({ iceServers })
   const channel = remote.createDataChannel("unreliable", {

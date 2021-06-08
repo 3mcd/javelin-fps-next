@@ -20,7 +20,6 @@
     "@javelin/net": "1.0.0-alpha.6",
     "@types/live-server": "^1.2.0",
     "@types/minimist": "^1.2.1",
-    "babylonjs": "^4.2.0",
     "contro": "^2.2.0",
     "javelin-fps-shared": "workspace:^0.0.1",
     "live-server": "^1.2.1",

@@ -2,18 +2,21 @@ import * as Rapier from "@a-type/rapier3d-node"
 import {
   ComponentOf,
   createQuery,
-  Entity,
   useInterval,
   useMonitor,
+  useWorld,
 } from "@javelin/ecs"
 import {
   createImmutableRef,
+  Player,
   Position,
   Rotation,
   Velocity,
 } from "javelin-fps-shared"
+import { useRigidBodies } from "../effects"
 const qryStatic = createQuery(Position, Rotation).not(Velocity)
 const qryDynamic = createQuery(Position, Rotation, Velocity)
+const qryBoxes = createQuery(Position, Rotation, Velocity).not(Player)
 
 export const useRapier = createImmutableRef(() => {
   const world = new Rapier.World(new Rapier.Vector3(0, -9.81, 0))
@@ -22,10 +25,6 @@ export const useRapier = createImmutableRef(() => {
   const groundColliderDesc = Rapier.ColliderDesc.cuboid(1000, 0, 1000)
   world.createCollider(groundColliderDesc, groundRigidBody.handle)
   return world
-})
-
-const useRigidBodies = createImmutableRef(() => new Map<Entity, any>(), {
-  global: true,
 })
 
 function createBoxBody(
@@ -49,12 +48,17 @@ function createBoxBody(
 }
 
 export function sysPhysics() {
+  const { has } = useWorld()
   const physics = useRapier()
   const dynamic = useRigidBodies()
   // create dynamic rigid bodies
   useMonitor(
     qryDynamic,
-    (e, [t, q, v]) => dynamic.set(e, createBoxBody(physics, t, q, v)),
+    (e, [t, q, v]) => {
+      const body = createBoxBody(physics, t, q, v)
+      if (has(e, Player)) body.setLinearDamping(0.95)
+      dynamic.set(e, body)
+    },
     e => {
       const body = dynamic.get(e)
       physics.removeRigidBody(body)
@@ -82,9 +86,8 @@ export function sysPhysics() {
 
 export function sysPhysicsBounce() {
   const dynamic = useRigidBodies()
-  // bounce!
   if (useInterval(5000)) {
-    qryDynamic(e => {
+    qryBoxes(e => {
       const body = dynamic.get(e)
       const impulse = new Rapier.Vector3(
         (0.5 - Math.random()) * 10,

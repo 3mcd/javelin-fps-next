@@ -1,4 +1,3 @@
-import { createRef } from "@javelin/ecs"
 import { createImmutableRef } from "javelin-fps-shared"
 import {
   ACESFilmicToneMapping,
@@ -9,6 +8,7 @@ import {
   HemisphereLight,
   Mesh,
   MeshLambertMaterial,
+  Object3D,
   PCFSoftShadowMap,
   PerspectiveCamera,
   PlaneBufferGeometry,
@@ -16,20 +16,25 @@ import {
   sRGBEncoding,
   WebGLRenderer,
 } from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
 export const useScene = createImmutableRef(
   () => {
     const canvas = document.getElementById("game") as HTMLCanvasElement
     const renderer = new WebGLRenderer({ antialias: true, canvas })
     const scene = new Scene()
-    const ratio = window.innerWidth / window.innerHeight
-    const camera = new PerspectiveCamera(45, ratio, 0.1, 2000000)
-    const controls = new OrbitControls(camera, renderer.domElement)
+    const camera = new PerspectiveCamera(
+      45,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      2000000,
+    )
 
-    camera.position.z = -10
-    camera.position.y = 10
-    camera.lookAt(0, 0, 0)
+    const cameraContainer = new Object3D()
+
+    camera.lookAt(1, 0, 0)
+    cameraContainer.add(camera)
+
+    scene.add(cameraContainer)
 
     renderer.outputEncoding = sRGBEncoding
     renderer.toneMapping = ACESFilmicToneMapping
@@ -92,7 +97,7 @@ export const useScene = createImmutableRef(
 
     document.body.appendChild(renderer.domElement)
 
-    return { scene, renderer, canvas, camera, controls }
+    return { scene, renderer, canvas, camera }
   },
   { global: true },
 )

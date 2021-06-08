@@ -1,5 +1,5 @@
 import { component, createQuery, useMonitor, useWorld } from "@javelin/ecs"
-import { Position, Rotation, Wall } from "javelin-fps-shared"
+import { Player, Position, Rotation, Wall } from "javelin-fps-shared"
 import { Quaternion } from "three"
 import { createStackPool } from "../../pool"
 import { Interp } from "../schema"
@@ -68,6 +68,7 @@ export function sysInterp() {
 
   qryInterp(function interpolate(e, [interp]) {
     const renderTime = now - interp.adaptiveSendRate
+    // const renderTime = now - (1 / 30) * 1000
     // Drop older positions.
     while (interp.buffer.length >= 2 && interp.buffer[1][0] <= renderTime) {
       interpPool.release(interp.buffer.shift())
@@ -100,7 +101,7 @@ export function sysInterp() {
       interp.qz = tempQuatTo.z
       interp.qw = tempQuatTo.w
 
-      interp.adaptiveSendRate = dt
+      interp.adaptiveSendRate = (interp.adaptiveSendRate + dt) / 2
     }
   })
 }

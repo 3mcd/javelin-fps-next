@@ -7,9 +7,11 @@ export const Position = { x: float64, y: float64, z: float64 }
 export const Rotation = { x: float64, y: float64, z: float64, w: float64 }
 export const Velocity = { x: float64, y: float64, z: float64 }
 export const Wall = { test: float64 }
+export const Sun = { inclination: float64, azimuth: float64 }
 
 registerSchema(Player, 0)
 registerSchema(Position, 1)
 registerSchema(Rotation, 2)
 registerSchema(Velocity, 3)
 registerSchema(Wall, 4)
+registerSchema(Sun, 5)

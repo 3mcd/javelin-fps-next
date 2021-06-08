@@ -1,4 +1,5 @@
 import { createMessageProducer, MessageProducer } from "@javelin/net"
+import { InputSample } from "javelin-fps-shared"
 import WebSocket from "ws"
 
 export type Client = {
@@ -6,6 +7,8 @@ export type Client = {
   peer: RTCPeerConnection
   socket: WebSocket
   channel: RTCDataChannel | null
+  inputs: InputSample[]
+  latestInput: InputSample | null
   producer: MessageProducer
   modelSent: boolean
 }
@@ -21,6 +24,8 @@ export function createClient(
     peer,
     socket,
     channel,
+    inputs: [],
+    latestInput: null,
     producer: createMessageProducer({ maxByteLength: 10_000 }),
     modelSent: false,
   }
