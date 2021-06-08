@@ -2,23 +2,36 @@ import * as Rapier from "@a-type/rapier3d-node"
 import {
   ComponentOf,
   createQuery,
-  createRef,
   Entity,
   useInterval,
   useMonitor,
 } from "@javelin/ecs"
-import { Quaternion, Transform, Velocity } from "javelin-fps-shared"
-import { useRapier } from "../effects/use_rapier"
+import {
+  createImmutableRef,
+  Position,
+  Rotation,
+  Velocity,
+} from "javelin-fps-shared"
+const qryStatic = createQuery(Position, Rotation).not(Velocity)
+const qryDynamic = createQuery(Position, Rotation, Velocity)
 
-const qryStatic = createQuery(Transform, Quaternion).not(Velocity)
-const qryDynamic = createQuery(Transform, Quaternion, Velocity)
+export const useRapier = createImmutableRef(() => {
+  const world = new Rapier.World(new Rapier.Vector3(0, -9.81, 0))
+  const groundRigidBodyDesc = new Rapier.RigidBodyDesc(Rapier.BodyStatus.Static)
+  const groundRigidBody = world.createRigidBody(groundRigidBodyDesc)
+  const groundColliderDesc = Rapier.ColliderDesc.cuboid(1000, 0, 1000)
+  world.createCollider(groundColliderDesc, groundRigidBody.handle)
+  return world
+})
 
-const useDynamic = createRef(() => new Map<Entity, any>())
+const useRigidBodies = createImmutableRef(() => new Map<Entity, any>(), {
+  global: true,
+})
 
 function createBoxBody(
   world: any,
-  { x, y, z }: ComponentOf<typeof Transform>,
-  { x: qx, y: qy, z: qz, w: qw }: ComponentOf<typeof Quaternion>,
+  { x, y, z }: ComponentOf<typeof Position>,
+  { x: qx, y: qy, z: qz, w: qw }: ComponentOf<typeof Rotation>,
   velocity?: ComponentOf<typeof Velocity>,
 ) {
   const bodyDesc = new Rapier.RigidBodyDesc(
@@ -37,7 +50,7 @@ function createBoxBody(
 
 export function sysPhysics() {
   const physics = useRapier()
-  const { value: dynamic } = useDynamic()
+  const dynamic = useRigidBodies()
   // create dynamic rigid bodies
   useMonitor(
     qryDynamic,
@@ -50,18 +63,6 @@ export function sysPhysics() {
   )
   // create static rigid bodies
   useMonitor(qryStatic, (e, [t, q]) => createBoxBody(physics, t, q))
-  // bounce!
-  if (useInterval(5000)) {
-    qryDynamic(e => {
-      const body = dynamic.get(e)
-      const impulse = new Rapier.Vector3(
-        Math.random() * 2,
-        10,
-        Math.random() * 2,
-      )
-      body.applyImpulse(impulse, true)
-    })
-  }
   // step simulation
   physics.step()
   // update dynamic components
@@ -77,4 +78,20 @@ export function sysPhysics() {
     q.z = qz
     q.w = qw
   })
+}
+
+export function sysPhysicsBounce() {
+  const dynamic = useRigidBodies()
+  // bounce!
+  if (useInterval(5000)) {
+    qryDynamic(e => {
+      const body = dynamic.get(e)
+      const impulse = new Rapier.Vector3(
+        (0.5 - Math.random()) * 10,
+        15,
+        (0.5 - Math.random()) * 10,
+      )
+      body.applyImpulse(impulse, true)
+    })
+  }
 }

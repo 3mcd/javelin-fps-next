@@ -15,23 +15,32 @@ importers:
 
   packages/client:
     specifiers:
+      '@javelin/core': ^1.0.0-alpha.5
       '@javelin/ecs': 1.0.0-alpha.6
       '@javelin/net': 1.0.0-alpha.6
       '@types/live-server': ^1.2.0
       '@types/minimist': ^1.2.1
+      '@types/three': ^0.129.1
       babylonjs: ^4.2.0
+      contro: ^2.2.0
       javelin-fps-shared: workspace:^0.0.1
       live-server: ^1.2.1
       minimist: ^1.2.5
+      three: ^0.129.0
     dependencies:
+      '@javelin/core': 1.0.0-alpha.5
       '@javelin/ecs': 1.0.0-alpha.6
       '@javelin/net': 1.0.0-alpha.6
       '@types/live-server': 1.2.0
       '@types/minimist': 1.2.1
       babylonjs: 4.2.0
+      contro: 2.2.0
       javelin-fps-shared: link:../shared
       live-server: 1.2.1
       minimist: 1.2.5
+      three: 0.129.0
+    devDependencies:
+      '@types/three': 0.129.1
 
   packages/server:
     specifiers:
@@ -113,6 +122,10 @@ packages:
 
   /@types/node/15.12.1:
     resolution: {integrity: sha512-zyxJM8I1c9q5sRMtVF+zdd13Jt6RU4r4qfhTd7lQubyThvLfx6yYekWSQjGCGV2Tkecgxnlpl/DNlb6Hg+dmEw==}
+
+  /@types/three/0.129.1:
+    resolution: {integrity: sha512-31VTcjAQNggIrCH9NVotTYsr5Ws/QMGGTaMK6RP3EgyzW2WEuZdm25TNidd6PJ3e4a6/hbswNacnTsjwc7ksbw==}
+    dev: true
 
   /@types/ws/7.4.4:
     resolution: {integrity: sha512-d/7W23JAXPodQNbOZNXvl2K+bqAQrCMwlh/nuQsPSQk6Fq0opHoPrUw43aHsvSbIiQPr8Of2hkFbnz1XBFVyZQ==}
@@ -391,6 +404,10 @@ packages:
 
   /console-control-strings/1.1.0:
     resolution: {integrity: sha1-PXz0Rk22RG6mRL9LOVB/mFEAjo4=}
+    dev: false
+
+  /contro/2.2.0:
+    resolution: {integrity: sha512-gIjXC7t3J8q5r61jOid0CsbcOPIOuUYG3eL+45P5SgKlpW427sukZ2aPhfPVVNuM4Tkw1iipGv8JvT2ax1E6wQ==}
     dev: false
 
   /copy-descriptor/0.1.1:
@@ -1772,6 +1789,10 @@ packages:
       mkdirp: 0.5.5
       safe-buffer: 5.2.1
       yallist: 3.1.1
+    dev: false
+
+  /three/0.129.0:
+    resolution: {integrity: sha512-wiWio1yVRg2Oj6WEWsTHQo5eSzYpEwSBtPSi3OofNpvFbf26HFfb9kw4FZJNjII4qxzp0b1xLB11+tKkBGB1ZA==}
     dev: false
 
   /through/2.3.8:

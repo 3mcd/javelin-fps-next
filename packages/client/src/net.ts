@@ -1,6 +1,9 @@
 import {} from "javelin-fps-shared"
 
-const SERVER_HOSTNAME = `${window.location.hostname}:8000`
+const hostname = window.location.hostname
+const SERVER_HOSTNAME = `${
+  hostname === "127.0.0.1" ? "localhost" : hostname
+}:8000`
 
 export async function connect() {
   const iceServers = await (await fetch(`http://${SERVER_HOSTNAME}/ice`)).json()
@@ -35,8 +38,17 @@ export async function connect() {
   remote.addEventListener("icecandidate", handleIceCandidate)
 
   async function connectSocket() {
-    return new Promise<WebSocket>(resolve => {
-      socket.addEventListener("open", () => resolve(socket))
+    return new Promise<string>(resolve => {
+      socket.addEventListener("message", onceIdentity)
+      function onceIdentity({ data }: MessageEvent) {
+        if (typeof data === "string") {
+          const message = JSON.parse(data)
+          if (message.type === "id") {
+            resolve(message.id)
+            socket.removeEventListener("message", onceIdentity)
+          }
+        }
+      }
     })
   }
 
@@ -45,16 +57,12 @@ export async function connect() {
     remote.setLocalDescription(offer)
     return new Promise(resolve => {
       socket.send(JSON.stringify({ type: "sdp", sdp: offer }))
-      remote.addEventListener("connectionstatechange", () => {
-        if (remote.connectionState === "connected") {
-          resolve(remote)
-        }
-      })
+      channel.addEventListener("open", () => resolve(channel))
     })
   }
 
-  await connectSocket()
+  const id = await connectSocket()
   await connectChannel()
 
-  return { socket, channel }
+  return { id, socket, channel }
 }

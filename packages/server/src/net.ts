@@ -57,38 +57,42 @@ async function handleSignalingMessage(client: Client, message: any) {
 }
 
 function registerClient(client: Client) {
-  client.peer.addEventListener("icecandidate", event =>
-    client.socket.send(
-      encodeSignalingMessage({ type: "ice", candidate: event.candidate }),
-    ),
-  )
+  client.socket.send(encodeSignalingMessage({ type: "id", id: client.id }))
   client.socket.on("message", async data => {
     if (typeof data === "string") {
       handleSignalingMessage(client, decodeSignalingMessage(data))
     }
   })
-  client.peer.addEventListener("datachannel", ({ channel }) => {
-    channel.addEventListener("open", () => {
-      if (client.channel !== null) {
-        client.channel.close()
-      }
-      client.channel = channel
-      onClientConnected.dispatch(client as Client)
-    })
-  })
   client.socket.on("close", () => {
     client.channel?.close()
     onClientDisconnected.dispatch(client)
   })
+  client.peer.addEventListener("icecandidate", event =>
+    client.socket.send(
+      encodeSignalingMessage({ type: "ice", candidate: event.candidate }),
+    ),
+  )
+  client.peer.addEventListener("datachannel", ({ channel }) => {
+    channel.addEventListener("open", () => {
+      client.channel?.close()
+      client.channel = channel
+      onClientConnected.dispatch(client as Client)
+    })
+  })
 }
 
-sockets.on("connection", socket => {
-  iceServers.then(result => {
+sockets.on("connection", async socket => {
+  try {
+    const result = await iceServers
     const id = crypto.randomBytes(16).toString("hex")
     const peer = new WebRTC.RTCPeerConnection({ iceServers: result })
     const client = createClient(id, peer, socket)
     registerClient(client)
-  })
+  } catch (err) {
+    console.error("Failed to register client.")
+    console.error(err.message)
+    socket.close()
+  }
 })
 
 server.on("upgrade", (req, socket, head) => {

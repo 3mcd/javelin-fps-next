@@ -21,7 +21,7 @@ export function createClient(
     peer,
     socket,
     channel,
-    producer: createMessageProducer({ maxByteLength: 2000 }),
+    producer: createMessageProducer({ maxByteLength: 10_000 }),
     modelSent: false,
   }
 }

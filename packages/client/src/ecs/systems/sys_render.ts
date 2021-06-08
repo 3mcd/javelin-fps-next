@@ -1,84 +1,152 @@
 import {
+  ComponentOf,
+  createEffect,
   createQuery,
-  createRef,
   Entity,
   useMonitor,
-  useRef,
   useWorld,
 } from "@javelin/ecs"
 import {
-  Color3,
-  Engine,
-  FreeCamera,
-  HemisphericLight,
+  createImmutableRef,
+  Player,
+  Position,
+  Rotation,
+  Wall,
+} from "javelin-fps-shared"
+import {
+  BoxGeometry,
+  Camera,
+  Material,
   Mesh,
-  Quaternion as BabylonQuaternion,
+  MeshLambertMaterial,
+  Quaternion,
+  Renderer,
   Scene,
-  StandardMaterial,
-  Vector3,
-} from "babylonjs"
-import { Quaternion, Transform, Wall } from "javelin-fps-shared"
+} from "three"
+import { useScene } from "../effects"
+import { Interp } from "../schema"
 
-const qryBodies = createQuery(Transform, Quaternion)
+const materials = {
+  cube: new MeshLambertMaterial({
+    color: 0xff0000,
+  }),
+  wall: new MeshLambertMaterial({
+    color: 0xffffff,
+  }),
+}
+const geometries = {
+  box: new BoxGeometry(),
+}
+const quaternion = new Quaternion()
 
-const useScene = createRef(() => {
-  const canvas = document.getElementById("game") as HTMLCanvasElement
-  const engine = new Engine(
-    canvas,
-    true,
-    {
-      preserveDrawingBuffer: true,
-      stencil: true,
-    },
-    true,
-  )
-  const scene = new Scene(engine)
-  const camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene)
-  camera.setTarget(Vector3.Zero())
-  camera.attachControl(canvas, false)
-  const light = new HemisphericLight("light1", new Vector3(0, 1, 0), scene)
-  const ground = Mesh.CreateGround("ground1", 10, 10, 2, scene, false)
-  engine.runRenderLoop(() => scene.render())
-  return scene
+const qryWalls = createQuery(Position, Rotation, Wall)
+const qryBodies = createQuery(Position, Rotation).not(Wall)
+const qryInterp = createQuery(Interp, Rotation)
+
+const useMeshes = createImmutableRef(() => new Map<Entity, Mesh>(), {
+  global: true,
 })
-const useMeshes = createRef(() => new Map<Entity, Mesh>())
+const useRenderLoop = createEffect(() => {
+  let _renderer: Renderer
+  let _scene: Scene
+  let _camera: Camera
+  let running = false
+  const api = {
+    start() {
+      if (!running) {
+        running = true
+        requestAnimationFrame(loop)
+      }
+    },
+    stop() {
+      if (running) running = false
+    },
+  }
+  function loop() {
+    if (!running) return
+    if (_renderer) {
+      _renderer.render(_scene, _camera)
+    }
+    requestAnimationFrame(loop)
+  }
+  api.start()
+  return function useRenderLoop(
+    renderer: Renderer,
+    scene: Scene,
+    camera: Camera,
+  ) {
+    _renderer = renderer
+    _scene = scene
+    _camera = camera
+    return api
+  }
+})
+
+function createBoxMesh(
+  material: Material,
+  position: ComponentOf<typeof Position>,
+  rotation: ComponentOf<typeof Rotation>,
+) {
+  const geometry = geometries.box
+  const mesh = new Mesh(geometry, material)
+  mesh.receiveShadow = true
+  mesh.castShadow = true
+  mesh.position.x = position.x
+  mesh.position.y = position.y
+  mesh.position.z = position.z
+  quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
+  mesh.setRotationFromQuaternion(quaternion)
+  return mesh
+}
 
 export function sysRender() {
-  const { has } = useWorld()
-  const { value: meshes } = useMeshes()
-  const { value: scene } = useScene()
-  const boxMaterial = useRef<StandardMaterial | null>(null)
+  const { scene, camera, controls, renderer } = useScene()
+  const meshes = useMeshes()
+  const cleanup = (e: Entity) => {
+    const mesh = meshes.get(e)
+    scene.remove(mesh)
+    meshes.delete(e)
+  }
+  useRenderLoop(renderer, scene, camera)
   useMonitor(
     qryBodies,
     (e, [t, q]) => {
-      const box = Mesh.CreateBox("box1", 1, scene, true, Mesh.FRONTSIDE)
-      const material = new StandardMaterial("boxMaterial", scene)
-      material.diffuseColor = has(e, Wall)
-        ? new Color3(1, 1, 1)
-        : new Color3(1, 0, 1)
-      box.material = material
-      box.position.x = t.x
-      box.position.y = t.y
-      box.position.z = t.z
-      box.rotationQuaternion = new BabylonQuaternion(q.x, q.y, q.z, q.w)
-      meshes.set(e, box)
+      const mesh = createBoxMesh(materials.cube, t, q)
+      scene.add(mesh)
+      meshes.set(e, mesh)
     },
-    e => {
-      const mesh = meshes.get(e)
-      mesh.dispose()
-      meshes.delete(e)
-    },
+    cleanup,
   )
-  qryBodies((e, [t, q]) => {
+  useMonitor(
+    qryWalls,
+    (e, [t, q]) => {
+      const mesh = createBoxMesh(materials.wall, t, q)
+      scene.add(mesh)
+      meshes.set(e, mesh)
+    },
+    cleanup,
+  )
+  qryInterp(function copyTransformToMesh(e, [interp]) {
     const mesh = meshes.get(e)
     if (mesh !== undefined) {
-      mesh.position.x = t.x
-      mesh.position.y = t.y
-      mesh.position.z = t.z
-      mesh.rotationQuaternion.x = q.x
-      mesh.rotationQuaternion.y = q.y
-      mesh.rotationQuaternion.z = q.z
-      mesh.rotationQuaternion.w = q.w
+      mesh.position.x = interp.x
+      mesh.position.y = interp.y
+      mesh.position.z = interp.z
+      quaternion.set(interp.qx, interp.qy, interp.qz, interp.qw)
+      mesh.setRotationFromQuaternion(quaternion)
+    }
+  })
+  controls.update()
+}
+
+const qryPlayerBodies = createQuery(Player, Interp)
+
+export function sysRenderCamera() {
+  const { latestStepData } = useWorld()
+  const { camera } = useScene()
+  qryPlayerBodies(function lookAtPlayerActor(e, [p, { x, y, z }]) {
+    if (p.clientId === latestStepData) {
+      camera.lookAt(x, y, z)
     }
   })
 }
