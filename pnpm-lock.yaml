@@ -15,27 +15,23 @@ importers:
 
   packages/client:
     specifiers:
-      '@babylonjs/core': 5.0.0-alpha.24
-      '@javelin/core': ^1.0.0-alpha.5
-      '@javelin/ecs': 1.0.0-alpha.6
-      '@javelin/net': 1.0.0-alpha.6
+      '@javelin/core': ^1.0.0-alpha.7
+      '@javelin/ecs': 1.0.0-alpha.7
+      '@javelin/net': 1.0.0-alpha.7
       '@types/live-server': ^1.2.0
       '@types/minimist': ^1.2.1
       '@types/three': ^0.129.1
-      babylonjs: ^4.2.0
       contro: ^2.2.0
       javelin-fps-shared: workspace:^0.0.1
       live-server: ^1.2.1
       minimist: ^1.2.5
       three: ^0.129.0
     dependencies:
-      '@babylonjs/core': 5.0.0-alpha.24
-      '@javelin/core': 1.0.0-alpha.5
-      '@javelin/ecs': 1.0.0-alpha.6
-      '@javelin/net': 1.0.0-alpha.6
+      '@javelin/core': 1.0.0-alpha.7
+      '@javelin/ecs': 1.0.0-alpha.7
+      '@javelin/net': 1.0.0-alpha.7
       '@types/live-server': 1.2.0
       '@types/minimist': 1.2.1
-      babylonjs: 4.2.0
       contro: 2.2.0
       javelin-fps-shared: link:../shared
       live-server: 1.2.1
@@ -47,11 +43,10 @@ importers:
   packages/server:
     specifiers:
       '@a-type/rapier3d-node': ^0.5.3-rc.2
-      '@babylonjs/core': 5.0.0-alpha.24
-      '@javelin/ecs': 1.0.0-alpha.6
+      '@javelin/ecs': 1.0.0-alpha.7
       '@javelin/hrtime-loop': 1.0.0-alpha.3
-      '@javelin/net': 1.0.0-alpha.6
-      '@javelin/pack': ^1.0.0-alpha.5
+      '@javelin/net': 1.0.0-alpha.7
+      '@javelin/pack': ^1.0.0-alpha.7
       '@types/node': ^15.12.1
       '@types/ws': ^7.4.4
       javelin-fps-shared: workspace:^0.0.1
@@ -60,11 +55,10 @@ importers:
       ws: ^7.4.6
     dependencies:
       '@a-type/rapier3d-node': 0.5.3-rc.2
-      '@babylonjs/core': 5.0.0-alpha.24
-      '@javelin/ecs': 1.0.0-alpha.6
+      '@javelin/ecs': 1.0.0-alpha.7
       '@javelin/hrtime-loop': 1.0.0-alpha.3
-      '@javelin/net': 1.0.0-alpha.6
-      '@javelin/pack': 1.0.0-alpha.5
+      '@javelin/net': 1.0.0-alpha.7
+      '@javelin/pack': 1.0.0-alpha.7
       '@types/ws': 7.4.4
       javelin-fps-shared: link:../shared
       twilio: 3.63.1
@@ -76,14 +70,14 @@ importers:
   packages/shared:
     specifiers:
       '@a-type/rapier3d-node': ^0.5.3-rc.2
-      '@javelin/core': 1.0.0-alpha.5
-      '@javelin/ecs': 1.0.0-alpha.6
-      '@javelin/pack': ^1.0.0-alpha.5
+      '@javelin/core': 1.0.0-alpha.7
+      '@javelin/ecs': 1.0.0-alpha.7
+      '@javelin/pack': ^1.0.0-alpha.7
     dependencies:
       '@a-type/rapier3d-node': 0.5.3-rc.2
-      '@javelin/core': 1.0.0-alpha.5
-      '@javelin/ecs': 1.0.0-alpha.6
-      '@javelin/pack': 1.0.0-alpha.5
+      '@javelin/core': 1.0.0-alpha.7
+      '@javelin/ecs': 1.0.0-alpha.7
+      '@javelin/pack': 1.0.0-alpha.7
 
 packages:
 
@@ -91,37 +85,32 @@ packages:
     resolution: {integrity: sha512-dxcQv3iZl+FNSSP8pwcW2C/GcdcZOEiydRiiLfU4tg4xcU2Ua8chYXgupDrx2BNEJbLdYfsW+b1LlpJAcj0ZZg==}
     dev: false
 
-  /@babylonjs/core/5.0.0-alpha.24:
-    resolution: {integrity: sha512-cac7gwuOjNVyR9HW+Xl4gMLvPDOOhxik9J0+zWUQisZZzX8fg/EUKBI3XJPsfDLBxdRCFK9YK5b4K9fmc8yTcA==}
-    dependencies:
-      tslib: 2.2.0
+  /@javelin/core/1.0.0-alpha.7:
+    resolution: {integrity: sha512-kD9FoxYqTV0BwJpSxy1witaP24uMPwCK/BgH7EMMXmaFJG+VbMOS146pixtszVBpyjdLlkKWfhNUJcNr6OqGWA==}
     dev: false
 
-  /@javelin/core/1.0.0-alpha.5:
-    resolution: {integrity: sha512-mLTOnzIJ2Q+kXiPKIJuoRGnyWwEqprpgLN/GGb/5LLwqIC5mdpAeSMzViQJmJBrwFswDldqpZ/fXWWEXo0hGBg==}
-    dev: false
-
-  /@javelin/ecs/1.0.0-alpha.6:
-    resolution: {integrity: sha512-CPtuIu80MnXMkSf1Yg/Kuj/BOz68PxZ9vt/b6XmsTidQiB0AyXBNYtJINNtLoHUOFqwlOvQqRYn61Y2+wHYuTg==}
+  /@javelin/ecs/1.0.0-alpha.7:
+    resolution: {integrity: sha512-vA7/plFut/yDLCpblT+pBs1DVTWrijhvsqLTqhfpvIgAi79a2twMH/u57UKmYfPpYsLX8ni7W1j9YF2704+pRQ==}
     dependencies:
-      '@javelin/core': 1.0.0-alpha.5
+      '@javelin/core': 1.0.0-alpha.7
     dev: false
 
   /@javelin/hrtime-loop/1.0.0-alpha.3:
     resolution: {integrity: sha512-G70wkcdBeXJqQmvAf+76sPA+spx565HIykV52IavdxlSgrtnh00BzF+QG7UWpC27nq0PlNn2Tj6qYMvg9XxpXQ==}
     dev: false
 
-  /@javelin/net/1.0.0-alpha.6:
-    resolution: {integrity: sha512-pLBccyGdpmS7IZf7756dlAJR6crBX2g1VDs+H58KfVPSOgAVxgBe/q50c6em7StPSBY+bnlOAspsRVBwWJGxsA==}
+  /@javelin/net/1.0.0-alpha.7:
+    resolution: {integrity: sha512-l9gHrlrdVTftiK79i4sSIXRWYOQYj5999Z4q3oQIckuqJUeCsk1JXBpiiDFLQhpYNrjl4hoIqDuIOIUqbtN+bw==}
     dependencies:
-      '@javelin/core': 1.0.0-alpha.5
-      '@javelin/ecs': 1.0.0-alpha.6
+      '@javelin/core': 1.0.0-alpha.7
+      '@javelin/ecs': 1.0.0-alpha.7
+      '@javelin/pack': 1.0.0-alpha.7
     dev: false
 
-  /@javelin/pack/1.0.0-alpha.5:
-    resolution: {integrity: sha512-lM5pLreaTFr8mCD/ejtrYlxLhoo4VTObzarG0iTu6Hu030fyV3OP1zuhoZULiMIo1nNXNYbsxT6argC7+80j3A==}
+  /@javelin/pack/1.0.0-alpha.7:
+    resolution: {integrity: sha512-TRm5SC9J1/bI7TKV4sZezvHN4oGbsGr9wJEq7O4wzx9tZDvoefuTwVmST/3+zSXaMB3GAtGvhLg6DyEWlqRavA==}
     dependencies:
-      '@javelin/core': 1.0.0-alpha.5
+      '@javelin/core': 1.0.0-alpha.7
     dev: false
 
   /@types/live-server/1.2.0:
@@ -246,10 +235,6 @@ packages:
       follow-redirects: 1.14.1
     transitivePeerDependencies:
       - debug
-    dev: false
-
-  /babylonjs/4.2.0:
-    resolution: {integrity: sha512-4hniJzWRkV0tDTTYGEHPk1lnfWn0HIw7HOvNWPK0rpUIbJooyeD9E5uVyHnslDedt0mtrA7QZu4i2Cz1DEmSsA==}
     dev: false
 
   /balanced-match/1.0.2:
@@ -1839,10 +1824,6 @@ packages:
   /toidentifier/1.0.0:
     resolution: {integrity: sha512-yaOH/Pk/VEhBWWTlhI+qXxDFXlejDGcQipMlyxda9nthulaxLZUNcUqFxokp0vcYnvteJln5FNQDRrxj3YcbVw==}
     engines: {node: '>=0.6'}
-    dev: false
-
-  /tslib/2.2.0:
-    resolution: {integrity: sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==}
     dev: false
 
   /twilio/3.63.1:

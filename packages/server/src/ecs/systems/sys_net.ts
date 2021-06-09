@@ -38,7 +38,7 @@ const tmpComponentUpdate: Component[] = []
 const SYNC_BASIC: Query[] = [qrySun, qryBodies, qryPlayers, qryWalls]
 
 export function sysNet() {
-  const { destroy, tryGet } = useWorld()
+  const { destroy, tryGet, has } = useWorld()
   const events = useEvents()
   const clients = useClients()
   // build initial view for newly connected clients
@@ -60,7 +60,7 @@ export function sysNet() {
     if (client)
       qryDynamic((ed, [p, q]) => {
         const amplify =
-          ed === ep
+          ed === ep || has(ed, Player)
             ? // always send player position
               Infinity
             : pos

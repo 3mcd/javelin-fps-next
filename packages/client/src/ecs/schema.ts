@@ -1,4 +1,4 @@
-import { arrayOf, boolean, number } from "@javelin/core"
+import { arrayOf, number } from "@javelin/core"
 
 export const Interp = {
   x: number,

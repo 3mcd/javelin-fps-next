@@ -23,17 +23,17 @@ async function main() {
   }
   const { channel, socket } = client
   let bytes = 0
-  let x = performance.now()
+  let prev = performance.now()
   function handleMessage({ data }: MessageEvent<string | ArrayBuffer>) {
     if (data instanceof ArrayBuffer) {
       messageHandler.push(data)
       bytes += data.byteLength
     }
-    const t = performance.now()
-    if (t - x >= 1000) {
+    const time = performance.now()
+    if (time - prev >= 1000) {
       console.log(`${bytes / 1000} kb/s`)
       bytes = 0
-      x = t
+      prev = time
     }
   }
   channel.addEventListener("message", handleMessage)

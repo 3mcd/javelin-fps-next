@@ -9,6 +9,9 @@
   },
   "author": "Eric McDaniel <eric.g.mcdaniel@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "pnpm watch --recursive --stream"
+  },
   "dependencies": {
     "esbuild": "^0.12.6",
     "esbuild-register": "^2.5.0"

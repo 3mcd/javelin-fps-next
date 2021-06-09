@@ -8,12 +8,7 @@ import {
   createQuery,
 } from "@javelin/ecs"
 
-// const S_PER_DAY = 60 * 60 * 24
-// const DEG_PER_S = 360 / S_PER_DAY
-
 const qrySun = createQuery(Sun)
-
-// const cycleSpeed = 10000
 
 export function sysDayNightCycle() {
   const { create } = useWorld()
@@ -22,9 +17,9 @@ export function sysDayNightCycle() {
     create(component(Sun, { inclination: 0.399, azimuth: 0.25 }))
     init.value = false
   }
-  if (useInterval(100)) {
+  if (useInterval(1000)) {
     qrySun((_, [s]) => {
-      observe(s).inclination += 0.01
+      observe(s).inclination += 0.001
     })
   }
 }

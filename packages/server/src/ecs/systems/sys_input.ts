@@ -10,7 +10,10 @@ function applyInput(sample: InputSample, rigidBody: any) {
   const x = (sample[0] - sample[2]) / 8
   const z = (sample[1] - sample[3]) / 8
   const linvel = rigidBody.linvel()
-  rigidBody.setLinvel(new Rapier.Vector3(linvel.x + x, linvel.y, linvel.z + z))
+  rigidBody.setLinvel(
+    new Rapier.Vector3(linvel.x + x, linvel.y, linvel.z + z),
+    true,
+  )
   if (sample[4]) {
     rigidBody.applyImpulse(new Rapier.Vector3(0, 1, 0), true)
   }

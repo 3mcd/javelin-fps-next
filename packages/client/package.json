@@ -15,9 +15,9 @@
   "author": "Eric McDaniel <eric.g.mcdaniel@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@javelin/core": "^1.0.0-alpha.5",
-    "@javelin/ecs": "1.0.0-alpha.6",
-    "@javelin/net": "1.0.0-alpha.6",
+    "@javelin/core": "^1.0.0-alpha.7",
+    "@javelin/ecs": "1.0.0-alpha.7",
+    "@javelin/net": "1.0.0-alpha.7",
     "@types/live-server": "^1.2.0",
     "@types/minimist": "^1.2.1",
     "contro": "^2.2.0",

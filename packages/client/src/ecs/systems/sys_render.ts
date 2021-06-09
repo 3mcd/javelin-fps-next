@@ -46,7 +46,8 @@ const qrySun = createQuery(Sun)
 const qryWalls = createQuery(Position, Rotation, Wall)
 const qryBodies = createQuery(Position, Rotation).not(Wall)
 const qryInterp = createQuery(Interp, Rotation)
-const qryPlayerBodies = createQuery(Player, Interp)
+const qryCoarse = createQuery(Position, Rotation).not(Interp)
+const qryPlayerBodies = createQuery(Player, Position)
 
 const useMeshes = createImmutableRef(() => new Map<Entity, Mesh>(), {
   global: true,
@@ -146,7 +147,17 @@ export function sysRender() {
     },
     cleanup,
   )
-  qryInterp(function copyTransformToMesh(e, [interp]) {
+  qryCoarse(function copyTransformToMesh(e, [p, q]) {
+    const mesh = meshes.get(e)
+    if (mesh !== undefined) {
+      mesh.position.x = p.x
+      mesh.position.y = p.y
+      mesh.position.z = p.z
+      quaternion.set(q.x, q.y, q.z, q.w)
+      mesh.setRotationFromQuaternion(quaternion)
+    }
+  })
+  qryInterp(function copyInterpolatedTransformToMesh(e, [interp]) {
     const mesh = meshes.get(e)
     if (mesh !== undefined) {
       mesh.position.x = interp.x

@@ -17,10 +17,10 @@
   "license": "MIT",
   "dependencies": {
     "@a-type/rapier3d-node": "^0.5.3-rc.2",
-    "@javelin/ecs": "1.0.0-alpha.6",
+    "@javelin/ecs": "1.0.0-alpha.7",
     "@javelin/hrtime-loop": "1.0.0-alpha.3",
-    "@javelin/net": "1.0.0-alpha.6",
-    "@javelin/pack": "^1.0.0-alpha.5",
+    "@javelin/net": "1.0.0-alpha.7",
+    "@javelin/pack": "^1.0.0-alpha.7",
     "@types/ws": "^7.4.4",
     "javelin-fps-shared": "workspace:^0.0.1",
     "twilio": "^3.63.1",

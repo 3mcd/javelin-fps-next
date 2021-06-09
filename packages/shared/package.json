@@ -14,8 +14,8 @@
   "license": "MIT",
   "dependencies": {
     "@a-type/rapier3d-node": "^0.5.3-rc.2",
-    "@javelin/core": "1.0.0-alpha.5",
-    "@javelin/ecs": "1.0.0-alpha.6",
-    "@javelin/pack": "^1.0.0-alpha.5"
+    "@javelin/core": "1.0.0-alpha.7",
+    "@javelin/ecs": "1.0.0-alpha.7",
+    "@javelin/pack": "^1.0.0-alpha.7"
   }
 }
