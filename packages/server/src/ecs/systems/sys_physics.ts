@@ -18,14 +18,19 @@ const qryStatic = createQuery(Position, Rotation).not(Velocity)
 const qryDynamic = createQuery(Position, Rotation, Velocity)
 const qryBoxes = createQuery(Position, Rotation, Velocity).not(Player)
 
-export const useRapier = createImmutableRef(() => {
-  const world = new Rapier.World(new Rapier.Vector3(0, -9.81, 0))
-  const groundRigidBodyDesc = new Rapier.RigidBodyDesc(Rapier.BodyStatus.Static)
-  const groundRigidBody = world.createRigidBody(groundRigidBodyDesc)
-  const groundColliderDesc = Rapier.ColliderDesc.cuboid(1000, 0, 1000)
-  world.createCollider(groundColliderDesc, groundRigidBody.handle)
-  return world
-})
+export const useRapier = createImmutableRef(
+  () => {
+    const world = new Rapier.World(new Rapier.Vector3(0, -9.81, 0))
+    const groundRigidBodyDesc = new Rapier.RigidBodyDesc(
+      Rapier.BodyStatus.Static,
+    )
+    const groundRigidBody = world.createRigidBody(groundRigidBodyDesc)
+    const groundColliderDesc = Rapier.ColliderDesc.cuboid(1000, 0, 1000)
+    world.createCollider(groundColliderDesc, groundRigidBody.handle)
+    return world
+  },
+  { global: true },
+)
 
 function createBoxBody(
   world: any,
@@ -47,6 +52,24 @@ function createBoxBody(
   return body
 }
 
+function createPlayerBody(
+  world: any,
+  { x, y, z }: ComponentOf<typeof Position>,
+  { x: qx, y: qy, z: qz, w: qw }: ComponentOf<typeof Rotation>,
+  velocity: ComponentOf<typeof Velocity>,
+) {
+  const bodyDesc = Rapier.RigidBodyDesc.newKinematicVelocityBased()
+    .setTranslation(x, y, z)
+    .setRotation(new Rapier.Quaternion(qx, qy, qz, qw))
+  if (velocity) {
+    bodyDesc.setLinvel(velocity.x, velocity.y, velocity.z)
+  }
+  const body = world.createRigidBody(bodyDesc)
+  const colliderDesc = Rapier.ColliderDesc.ball(0.5).setDensity(2.0)
+  const collider = world.createCollider(colliderDesc, body.handle)
+  return body
+}
+
 export function sysPhysics() {
   const { has } = useWorld()
   const physics = useRapier()
@@ -55,8 +78,12 @@ export function sysPhysics() {
   useMonitor(
     qryDynamic,
     (e, [t, q, v]) => {
-      const body = createBoxBody(physics, t, q, v)
-      if (has(e, Player)) body.setLinearDamping(0.95)
+      let body: any
+      if (has(e, Player)) {
+        body = createPlayerBody(physics, t, q, v)
+      } else {
+        body = createBoxBody(physics, t, q, v)
+      }
       dynamic.set(e, body)
     },
     e => {

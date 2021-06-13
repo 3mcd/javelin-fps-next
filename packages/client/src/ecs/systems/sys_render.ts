@@ -20,6 +20,7 @@ import {
   Material,
   Mesh,
   MeshLambertMaterial,
+  Object3D,
   Quaternion,
   Renderer,
   Scene,
@@ -47,7 +48,7 @@ const qryWalls = createQuery(Position, Rotation, Wall)
 const qryBodies = createQuery(Position, Rotation).not(Wall)
 const qryInterp = createQuery(Interp, Rotation)
 const qryCoarse = createQuery(Position, Rotation).not(Interp)
-const qryPlayerBodies = createQuery(Player, Position)
+const qryPlayerActors = createQuery(Player, Position, Rotation)
 
 const useMeshes = createImmutableRef(() => new Map<Entity, Mesh>(), {
   global: true,
@@ -56,7 +57,9 @@ const useRenderLoop = createEffect(() => {
   let _renderer: Renderer
   let _scene: Scene
   let _camera: Camera
-  let _target: ComponentOf<typeof Position>
+  let _cameraContainer: Object3D
+  let _targetPosition: ComponentOf<typeof Position>
+  let _targetRotation: ComponentOf<typeof Rotation>
   let running = false
   const api = {
     start() {
@@ -72,10 +75,19 @@ const useRenderLoop = createEffect(() => {
   function loop() {
     if (!running) return
     if (_renderer) {
-      if (_target) {
-        _camera.position.x = _target.x
-        _camera.position.y = _target.y
-        _camera.position.z = _target.z
+      if (_targetPosition) {
+        const { x, y, z } = _targetPosition
+        _cameraContainer.position.x = x
+        _cameraContainer.position.y = y
+        _cameraContainer.position.z = z
+      }
+      if (_targetRotation) {
+        _cameraContainer.quaternion.set(
+          _targetRotation.x,
+          _targetRotation.y,
+          _targetRotation.z,
+          _targetRotation.w,
+        )
       }
       _renderer.render(_scene, _camera)
     }
@@ -86,28 +98,32 @@ const useRenderLoop = createEffect(() => {
     renderer: Renderer,
     scene: Scene,
     camera: Camera,
-    target?: ComponentOf<typeof Position>,
+    cameraContainer: Object3D,
+    targetPosition?: ComponentOf<typeof Position>,
+    targetRotation?: ComponentOf<typeof Rotation>,
   ) {
     _renderer = renderer
     _scene = scene
     _camera = camera
-    _target = target
+    _cameraContainer = cameraContainer
+    _targetPosition = targetPosition
+    _targetRotation = targetRotation
     return api
   }
 })
 
 function createBoxMesh(
   material: Material,
-  position: ComponentOf<typeof Position>,
+  { x, y, z }: ComponentOf<typeof Position>,
   rotation: ComponentOf<typeof Rotation>,
 ) {
   const geometry = geometries.box
   const mesh = new Mesh(geometry, material)
   mesh.receiveShadow = true
   mesh.castShadow = true
-  mesh.position.x = position.x
-  mesh.position.y = position.y
-  mesh.position.z = position.z
+  mesh.position.x = x
+  mesh.position.y = y
+  mesh.position.z = z
   quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
   mesh.setRotationFromQuaternion(quaternion)
   return mesh
@@ -115,20 +131,29 @@ function createBoxMesh(
 
 export function sysRender() {
   const { latestStepData } = useWorld()
-  const { scene, camera, renderer } = useScene()
+  const { scene, camera, cameraContainer, renderer } = useScene()
   const meshes = useMeshes()
   const cleanup = (e: Entity) => {
     const mesh = meshes.get(e)
     scene.remove(mesh)
     meshes.delete(e)
   }
-  let target: ComponentOf<typeof Position> | undefined
-  qryPlayerBodies(function lookAtPlayerActor(e, [{ clientId }, p]) {
+  let cameraTargetPosition: ComponentOf<typeof Position> | undefined
+  let cameraTargetRotation: ComponentOf<typeof Rotation> | undefined
+  qryPlayerActors(function lookAtPlayerActor(e, [{ clientId }, p, r]) {
     if (clientId === (latestStepData as Client)?.id) {
-      target = p
+      cameraTargetPosition = p
+      cameraTargetRotation = r
     }
   })
-  useRenderLoop(renderer, scene, camera, target)
+  useRenderLoop(
+    renderer,
+    scene,
+    camera,
+    cameraContainer,
+    cameraTargetPosition,
+    cameraTargetRotation,
+  )
   useMonitor(
     qryBodies,
     (e, [t, q]) => {
@@ -172,10 +197,6 @@ export function sysRender() {
 const useSky = createImmutableRef(() => {
   const sky = createSky()
   sky.scale.setScalar(450000)
-  sky.material.uniforms.turbidity.value = 5.6
-  sky.material.uniforms.rayleigh.value = 3
-  sky.material.uniforms.mieCoefficient.value = 0.005
-  sky.material.uniforms.mieDirectionalG.value = 0.7
   return sky
 })
 export function sysRenderSky() {
@@ -192,9 +213,10 @@ export function sysRenderSky() {
     const { inclination, azimuth } = sun
     const theta = Math.PI * (inclination - 0.5)
     const phi = 2 * Math.PI * (azimuth - 0.5)
+    const sinPhi = Math.sin(phi)
     const sunX = Math.cos(phi)
-    const sunY = Math.sin(phi) * Math.sin(theta)
-    const sunZ = Math.sin(phi) * Math.cos(theta)
+    const sunY = sinPhi * Math.sin(theta)
+    const sunZ = sinPhi * Math.cos(theta)
     mesh.material.uniforms.sunPosition.value.set(sunX, sunY, sunZ)
   })
 }

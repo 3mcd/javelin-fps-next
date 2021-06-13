@@ -31,7 +31,7 @@ export const useScene = createImmutableRef(
 
     const cameraContainer = new Object3D()
 
-    camera.lookAt(1, 0, 0)
+    camera.lookAt(0, 0, 0)
     cameraContainer.add(camera)
 
     scene.add(cameraContainer)
@@ -97,7 +97,7 @@ export const useScene = createImmutableRef(
 
     document.body.appendChild(renderer.domElement)
 
-    return { scene, renderer, canvas, camera }
+    return { scene, renderer, canvas, camera, cameraContainer }
   },
   { global: true },
 )

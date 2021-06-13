@@ -14,9 +14,9 @@ export function sysSpawnPlayerActors() {
   for (const client of addedClients) {
     create(
       component(Player, { clientId: client.id }),
-      component(Position),
+      component(Position, { x: 50, y: 50, z: 50 }),
       component(Rotation, { w: 1 }),
-      component(Velocity),
+      component(Velocity, { y: -9.81 }),
     )
   }
 }

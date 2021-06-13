@@ -13,6 +13,12 @@ importers:
     devDependencies:
       typescript: 4.3.2
 
+  node_modules/.pnpm/@a-type+rapier3d-node@0.5.3-rc.2/node_modules/@a-type/rapier3d-node:
+    specifiers:
+      typescript: ^4.3.2
+    devDependencies:
+      typescript: 4.3.2
+
   packages/client:
     specifiers:
       '@javelin/core': ^1.0.0-alpha.7
@@ -42,7 +48,7 @@ importers:
 
   packages/server:
     specifiers:
-      '@a-type/rapier3d-node': ^0.5.3-rc.2
+      '@a-type/rapier3d-node': link:/Users/eric/Projects/rapier3d-node/
       '@javelin/ecs': 1.0.0-alpha.7
       '@javelin/hrtime-loop': 1.0.0-alpha.3
       '@javelin/net': 1.0.0-alpha.7

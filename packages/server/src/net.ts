@@ -7,8 +7,7 @@ import WebSocket from "ws"
 import { Client, createClient } from "./client"
 
 const twilioClient = twilio(
-  "AC2569374b9d797a2a6c29d1b502600be0",
-  "f01e6d493e391b8cb40136b2aa733546",
+/* twilio credentials */
 )
 const jsonHeaders = {
   "Access-Control-Allow-Origin": "*",

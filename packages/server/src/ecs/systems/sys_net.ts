@@ -1,7 +1,6 @@
 import {
   Component,
   createQuery,
-  createRef,
   Query,
   useInterval,
   useMonitor,
@@ -14,13 +13,13 @@ import {
   model,
 } from "@javelin/net"
 import {
+  createImmutableRef,
   Player,
-  Rotation,
   Position,
+  Rotation,
+  Sun,
   Velocity,
   Wall,
-  createImmutableRef,
-  Sun,
 } from "javelin-fps-shared"
 import { useClients } from "../effects/use_clients"
 import { addedClients, removedClients } from "../topics"
