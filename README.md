@@ -2,5 +2,5 @@
 
 ```sh
 pnpm i
-pnpm watch --recursive --stream
+pnpm start
 ```

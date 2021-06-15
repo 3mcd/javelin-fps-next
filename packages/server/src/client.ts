@@ -26,7 +26,7 @@ export function createClient(
     channel,
     inputs: [],
     latestInput: null,
-    producer: createMessageProducer({ maxByteLength: 10_000 }),
+    producer: createMessageProducer({ maxByteLength: 12_000 }),
     modelSent: false,
   }
 }

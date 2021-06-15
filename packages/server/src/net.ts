@@ -7,7 +7,8 @@ import WebSocket from "ws"
 import { Client, createClient } from "./client"
 
 const twilioClient = twilio(
-/* twilio credentials */
+  "AC2569374b9d797a2a6c29d1b502600be0",
+  "f01e6d493e391b8cb40136b2aa733546",
 )
 const jsonHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,7 +16,10 @@ const jsonHeaders = {
     "Origin, X-Requested-With, Content-Type, Accept",
   "Content-Type": "application/json",
 }
-const iceServers = twilioClient.tokens.create().then(token => token.iceServers)
+const iceServers = twilioClient.tokens
+  .create()
+  .then(token => token.iceServers)
+  .catch(() => [] as string[])
 export const server = http.createServer((req, res) => {
   if (req.method === "GET" && req.url === "/ice") {
     iceServers.then(result => {
