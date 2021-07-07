@@ -84,7 +84,7 @@ function createInterp(
 }
 
 export function sysInterp() {
-  const { attach, detach, get, latestStepData } = useWorld()
+  const { attach, detach, get, latestTickData } = useWorld()
   const { updated } = messageHandler.useInfo()
   const now = performance.now()
 
@@ -96,7 +96,7 @@ export function sysInterp() {
   useMonitor(
     qryDynamicControlled,
     (e, [p, q, pl]) =>
-      pl.clientId !== (latestStepData as Client).id &&
+      pl.clientId !== (latestTickData as Client).id &&
       attach(e, createInterp(p, q)),
     e => detach(e, get(e, Interp)),
   )
@@ -117,5 +117,5 @@ export function sysInterp() {
     }
   })
 
-  qryInterp((e, [interp]) => interpolate(now, interp))
+  qryInterp((_, [interp]) => interpolate(now, interp))
 }

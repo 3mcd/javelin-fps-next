@@ -1,10 +1,6 @@
-import { useRef, useWorld } from "@javelin/ecs"
+import { createImmutableRef, useRef, useWorld } from "@javelin/ecs"
 import { Gamepad, Keyboard, Mouse, or } from "contro"
-import {
-  ButtonState,
-  createImmutableRef,
-  InputSample,
-} from "javelin-fps-shared"
+import { ButtonState, InputSample } from "javelin-fps-shared"
 import { createStackPool } from "../../pool"
 import { inputTopic } from "../topics"
 
@@ -49,7 +45,7 @@ function toButtonState(control: AnyControl) {
 
 export function sysInput() {
   const buffer = useInputBuffer()
-  const { latestStep } = useWorld()
+  const { latestTick } = useWorld()
   const prevPointerX = useRef(0)
   const prevPointerY = useRef(0)
   const sample: InputSample = pool.retain()
@@ -70,7 +66,7 @@ export function sysInput() {
     sample[5] = prevPointerX.value
     sample[6] = prevPointerY.value
   }
-  sample[7] = latestStep
+  sample[7] = latestTick
   buffer.push(sample)
   while (buffer.length > 20) {
     pool.release(buffer.shift())

@@ -1,4 +1,4 @@
-import { createImmutableRef } from "javelin-fps-shared"
+import { createImmutableRef } from "@javelin/ecs"
 import {
   ACESFilmicToneMapping,
   AxesHelper,
@@ -93,5 +93,5 @@ export const useScene = createImmutableRef(
 
     return { scene, renderer, canvas, camera }
   },
-  { global: true },
+  { shared: true },
 )

@@ -1,19 +1,15 @@
 import {
   Component,
+  createImmutableRef,
   createQuery,
   Query,
   useInterval,
   useMonitor,
+  useRef,
   useWorld,
 } from "@javelin/ecs"
+import { createMessageProducer, encode } from "@javelin/net"
 import {
-  createMessage,
-  createMessageProducer,
-  encode,
-  model,
-} from "@javelin/net"
-import {
-  createImmutableRef,
   Player,
   Position,
   Rotation,
@@ -60,7 +56,7 @@ export function sysNet() {
       qryDynamic((ed, [p, q]) => {
         const amplify =
           ed === ep || has(ed, Player)
-            ? // always send player position
+            ? // always send player positions
               Infinity
             : pos
             ? // send closer entities more frequently
@@ -73,24 +69,25 @@ export function sysNet() {
       })
   })
   qrySun((e, [s]) => events.patch(e, s, Infinity))
-  // send updates
-  if (useInterval((1 / 30) * 1000)) {
-    const reliable = events.take()
-    const reliableEncoded = encode(reliable)
+
+  const send = useRef(true)
+  // send updates at 1/2 tick rate
+  if (send.value) {
+    const reliable = encode(events.take())
     for (const [, client] of clients) {
-      const unreliable = client.producer.take()
-      if (!client.modelSent) {
-        const message = createMessage()
-        model(message)
-        client.socket.send(encode(message))
-        client.socket.send(encode(reliable))
-        client.modelSent = true
+      const message = client.producer.take()
+      const unreliable = encode(message)
+      if (!client.initialized) {
+        client.socket.send(unreliable)
+        client.socket.send(reliable)
+        client.initialized = true
       } else {
-        client.socket.send(reliableEncoded)
-      }
-      if (client.channel.readyState === "open") {
-        client.channel.send(encode(unreliable))
+        if (client.channel.readyState === "open") {
+          client.channel.send(unreliable)
+        }
+        client.socket.send(reliable)
       }
     }
   }
+  send.value = !send.value
 }

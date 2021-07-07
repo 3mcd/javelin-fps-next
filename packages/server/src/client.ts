@@ -10,7 +10,7 @@ export type Client = {
   inputs: InputSample[]
   latestInput: InputSample | null
   producer: MessageProducer
-  modelSent: boolean
+  initialized: boolean
 }
 
 export function createClient(
@@ -26,7 +26,7 @@ export function createClient(
     channel,
     inputs: [],
     latestInput: null,
-    producer: createMessageProducer({ maxByteLength: 12_000 }),
-    modelSent: false,
+    producer: createMessageProducer({ maxByteLength: 4000 }),
+    initialized: false,
   }
 }

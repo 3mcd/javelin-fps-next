@@ -1,30 +1,22 @@
 import {
   ComponentOf,
   createEffect,
+  createImmutableRef,
   createQuery,
   Entity,
   useMonitor,
   useWorld,
 } from "@javelin/ecs"
-import {
-  createImmutableRef,
-  Player,
-  Position,
-  Rotation,
-  Sun,
-  Wall,
-} from "javelin-fps-shared"
+import { Player, Position, Rotation, Sun, Wall } from "javelin-fps-shared"
 import {
   BoxGeometry,
   Camera,
   Material,
   Mesh,
   MeshLambertMaterial,
-  Object3D,
   Quaternion,
   Renderer,
   Scene,
-  Vector3,
 } from "three"
 import { Client } from "../../net"
 import { createSky } from "../../three/sky"
@@ -34,6 +26,9 @@ import { Interp } from "../schema"
 const materials = {
   cube: new MeshLambertMaterial({
     color: 0xff0000,
+  }),
+  player: new MeshLambertMaterial({
+    color: 0x00ffff,
   }),
   wall: new MeshLambertMaterial({
     color: 0xffffff,
@@ -46,13 +41,14 @@ const tmpRotation = new Quaternion()
 
 const qrySun = createQuery(Sun)
 const qryWalls = createQuery(Position, Rotation, Wall)
-const qryBodies = createQuery(Position, Rotation).not(Wall)
+const qryBoxes = createQuery(Position, Rotation).not(Wall, Player)
+const qryPlayers = createQuery(Position, Rotation, Player)
 const qryInterp = createQuery(Interp, Rotation).not(Wall)
 const qryCoarse = createQuery(Position, Rotation).not(Interp)
 const qryPlayerActors = createQuery(Player, Position)
 
 const useMeshes = createImmutableRef(() => new Map<Entity, Mesh>(), {
-  global: true,
+  shared: true,
 })
 const useRenderLoop = createEffect(() => {
   let _renderer: Renderer
@@ -111,24 +107,34 @@ function createBoxMesh(
 }
 
 export function sysRender() {
-  const { latestStepData } = useWorld()
+  const { latestTickData } = useWorld<Client>()
   const { scene, camera, renderer } = useScene()
   const meshes = useMeshes()
   function cleanup(e: Entity) {
     const mesh = meshes.get(e)
     scene.remove(mesh)
+    mesh.removeFromParent()
     meshes.delete(e)
   }
   let target: ComponentOf<typeof Position> | undefined
   qryPlayerActors(function lookAtPlayerActor(e, [{ clientId }, p]) {
-    if (clientId === (latestStepData as Client)?.id) {
+    if (clientId === latestTickData?.id) {
       target = p
     }
   })
   useMonitor(
-    qryBodies,
+    qryBoxes,
     function addBoxToScene(e, [t, q]) {
       const mesh = createBoxMesh(materials.cube, t, q)
+      scene.add(mesh)
+      meshes.set(e, mesh)
+    },
+    cleanup,
+  )
+  useMonitor(
+    qryPlayers,
+    function addPlayerToScene(e, [t, q]) {
+      const mesh = createBoxMesh(materials.player, t, q)
       scene.add(mesh)
       meshes.set(e, mesh)
     },

@@ -47,12 +47,12 @@ export function sysSpawnMapEntities() {
 export function sysSpawnFun() {
   const { create } = useWorld()
   const count = useRef(0)
-  if (useInterval(50) && count.value < 50) {
+  if (useInterval(50) && count.value < 100) {
     create(
       component(Position, {
-        x: (0.5 - Math.random()) * 20,
-        y: Math.random() * 100,
-        z: (0.5 - Math.random()) * 20,
+        x: (0.5 - Math.random()) * 15,
+        y: Math.random() * 50,
+        z: (0.5 - Math.random()) * 15,
       }),
       component(Rotation, { w: 1 }),
       component(Velocity),

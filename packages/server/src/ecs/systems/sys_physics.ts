@@ -1,18 +1,13 @@
 import * as Rapier from "@a-type/rapier3d-node"
 import {
   ComponentOf,
+  createImmutableRef,
   createQuery,
   useInterval,
   useMonitor,
   useWorld,
 } from "@javelin/ecs"
-import {
-  createImmutableRef,
-  Player,
-  Position,
-  Rotation,
-  Velocity,
-} from "javelin-fps-shared"
+import { Player, Position, Rotation, Velocity } from "javelin-fps-shared"
 import { useBodies } from "../effects"
 const qryStatic = createQuery(Position, Rotation).not(Velocity)
 const qryDynamic = createQuery(Position, Rotation, Velocity)
@@ -29,11 +24,11 @@ export const useRapier = createImmutableRef(
     world.createCollider(groundColliderDesc, groundRigidBody.handle)
     return world
   },
-  { global: true },
+  { shared: true },
 )
 
 function createBoxBody(
-  world: any,
+  world: Rapier.World,
   { x, y, z }: ComponentOf<typeof Position>,
   { x: qx, y: qy, z: qz, w: qw }: ComponentOf<typeof Rotation>,
   velocity?: ComponentOf<typeof Velocity>,
@@ -47,13 +42,15 @@ function createBoxBody(
     bodyDesc.setLinvel(velocity.x, velocity.y, velocity.z)
   }
   const body = world.createRigidBody(bodyDesc)
-  const colliderDesc = Rapier.ColliderDesc.cuboid(0.5, 0.5, 0.5).setDensity(2.0)
-  const collider = world.createCollider(colliderDesc, body.handle)
+  world.createCollider(
+    Rapier.ColliderDesc.cuboid(0.5, 0.5, 0.5).setDensity(2.0),
+    body.handle,
+  )
   return body
 }
 
 function createPlayerBody(
-  world: any,
+  world: Rapier.World,
   { x, y, z }: ComponentOf<typeof Position>,
   { x: qx, y: qy, z: qz, w: qw }: ComponentOf<typeof Rotation>,
   velocity: ComponentOf<typeof Velocity>,
@@ -65,8 +62,10 @@ function createPlayerBody(
     bodyDesc.setLinvel(velocity.x, velocity.y, velocity.z)
   }
   const body = world.createRigidBody(bodyDesc)
-  const colliderDesc = Rapier.ColliderDesc.ball(0.5).setDensity(2.0)
-  const collider = world.createCollider(colliderDesc, body.handle)
+  world.createCollider(
+    Rapier.ColliderDesc.ball(0.5).setDensity(2.0),
+    body.handle,
+  )
   return body
 }
 
@@ -77,27 +76,26 @@ export function sysPhysics() {
   // create dynamic rigid bodies
   useMonitor(
     qryDynamic,
-    (e, [t, q, v]) => {
-      let body: any
-      if (has(e, Player)) {
-        body = createPlayerBody(physics, t, q, v)
-      } else {
-        body = createBoxBody(physics, t, q, v)
-      }
-      dynamic.set(e, body)
+    function addDynamicRigidBody(e, [t, q, v]) {
+      dynamic.set(
+        e,
+        (has(e, Player) ? createPlayerBody : createBoxBody)(physics, t, q, v),
+      )
     },
-    e => {
+    function cleanupDynamicRigidBody(e) {
       const body = dynamic.get(e)
       physics.removeRigidBody(body)
       dynamic.delete(e)
     },
   )
   // create static rigid bodies
-  useMonitor(qryStatic, (e, [t, q]) => createBoxBody(physics, t, q))
+  useMonitor(qryStatic, function addStaticRigidBody(e, [t, q]) {
+    createBoxBody(physics, t, q)
+  })
   // step simulation
   physics.step()
   // update dynamic components
-  qryDynamic((e, [t, q]) => {
+  qryDynamic(function syncDynamicEntity(e, [t, q]) {
     const body = dynamic.get(e)
     const { x, y, z } = body.translation()
     const { x: qx, y: qy, z: qz, w: qw } = body.rotation()

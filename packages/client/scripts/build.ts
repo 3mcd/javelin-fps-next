@@ -11,8 +11,9 @@ build({
   sourcemap: argv.watch ? "inline" : "external",
   watch: argv.watch,
   bundle: true,
-  minify: argv.build,
+  minify: false,
   format: "esm",
+  external: ["perf_hooks"],
 })
 
 if (argv.watch) {

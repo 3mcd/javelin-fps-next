@@ -10,15 +10,17 @@ function applyInput(sample: InputSample, body: Rapier.RigidBody) {
   const x = sample[1] - sample[3]
   const velocity = body.linvel()
   const rotation = body.rotation()
-  const angle = Math.atan2(x, z)
-  rotation.x = 0
-  rotation.y = 1 * Math.sin(angle / 2)
-  rotation.z = 0
-  rotation.w = Math.cos(angle / 2)
-  velocity.x = x * 25
-  velocity.z = z * 25
-  body.setLinvel(velocity, true)
-  body.setRotation(rotation, true)
+  if (z || x) {
+    const angle = Math.atan2(x, z)
+    rotation.x = 0
+    rotation.y = 1 * Math.sin(angle / 2)
+    rotation.z = 0
+    rotation.w = Math.cos(angle / 2)
+    velocity.x = x * 10
+    velocity.z = z * 10
+    body.setLinvel(velocity, true)
+    body.setRotation(rotation, true)
+  }
 }
 
 export function sysInput() {
@@ -32,6 +34,11 @@ export function sysInput() {
       const velocity = body.linvel()
       velocity.y = -9.81
       body.setLinvel(velocity, true)
+    }
+    if (client.inputs.length === 0) {
+      if (client.latestInput) {
+        applyInput(client.latestInput, body)
+      }
     }
     while (client.inputs.length) {
       const sample = client.inputs.shift()
