@@ -48,7 +48,7 @@ const qryWalls = createQuery(Position, Rotation, Wall)
 const qryBodies = createQuery(Position, Rotation).not(Wall)
 const qryInterp = createQuery(Interp, Rotation)
 const qryCoarse = createQuery(Position, Rotation).not(Interp)
-const qryPlayerActors = createQuery(Player, Position, Rotation)
+const qryPlayerActors = createQuery(Player, Position)
 
 const useMeshes = createImmutableRef(() => new Map<Entity, Mesh>(), {
   global: true,
@@ -57,9 +57,7 @@ const useRenderLoop = createEffect(() => {
   let _renderer: Renderer
   let _scene: Scene
   let _camera: Camera
-  let _cameraContainer: Object3D
-  let _targetPosition: ComponentOf<typeof Position>
-  let _targetRotation: ComponentOf<typeof Rotation>
+  let _target: ComponentOf<typeof Position>
   let running = false
   const api = {
     start() {
@@ -75,19 +73,12 @@ const useRenderLoop = createEffect(() => {
   function loop() {
     if (!running) return
     if (_renderer) {
-      if (_targetPosition) {
-        const { x, y, z } = _targetPosition
-        _cameraContainer.position.x = x
-        _cameraContainer.position.y = y
-        _cameraContainer.position.z = z
-      }
-      if (_targetRotation) {
-        _cameraContainer.quaternion.set(
-          _targetRotation.x,
-          _targetRotation.y,
-          _targetRotation.z,
-          _targetRotation.w,
-        )
+      if (_target) {
+        const { x, y, z } = _target
+        _camera.position.x = x + 15
+        _camera.position.y = y + 40
+        _camera.position.z = z + 15
+        _camera.lookAt(x, y, z)
       }
       _renderer.render(_scene, _camera)
     }
@@ -98,16 +89,12 @@ const useRenderLoop = createEffect(() => {
     renderer: Renderer,
     scene: Scene,
     camera: Camera,
-    cameraContainer: Object3D,
-    targetPosition?: ComponentOf<typeof Position>,
-    targetRotation?: ComponentOf<typeof Rotation>,
+    target?: ComponentOf<typeof Position>,
   ) {
     _renderer = renderer
     _scene = scene
     _camera = camera
-    _cameraContainer = cameraContainer
-    _targetPosition = targetPosition
-    _targetRotation = targetRotation
+    _target = target
     return api
   }
 })
@@ -117,8 +104,7 @@ function createBoxMesh(
   { x, y, z }: ComponentOf<typeof Position>,
   rotation: ComponentOf<typeof Rotation>,
 ) {
-  const geometry = geometries.box
-  const mesh = new Mesh(geometry, material)
+  const mesh = new Mesh(geometries.box, material)
   mesh.receiveShadow = true
   mesh.castShadow = true
   mesh.position.x = x
@@ -131,29 +117,19 @@ function createBoxMesh(
 
 export function sysRender() {
   const { latestStepData } = useWorld()
-  const { scene, camera, cameraContainer, renderer } = useScene()
+  const { scene, camera, renderer } = useScene()
   const meshes = useMeshes()
-  const cleanup = (e: Entity) => {
+  function cleanup(e: Entity) {
     const mesh = meshes.get(e)
     scene.remove(mesh)
     meshes.delete(e)
   }
-  let cameraTargetPosition: ComponentOf<typeof Position> | undefined
-  let cameraTargetRotation: ComponentOf<typeof Rotation> | undefined
-  qryPlayerActors(function lookAtPlayerActor(e, [{ clientId }, p, r]) {
+  let target: ComponentOf<typeof Position> | undefined
+  qryPlayerActors(function lookAtPlayerActor(e, [{ clientId }, p]) {
     if (clientId === (latestStepData as Client)?.id) {
-      cameraTargetPosition = p
-      cameraTargetRotation = r
+      target = p
     }
   })
-  useRenderLoop(
-    renderer,
-    scene,
-    camera,
-    cameraContainer,
-    cameraTargetPosition,
-    cameraTargetRotation,
-  )
   useMonitor(
     qryBodies,
     (e, [t, q]) => {
@@ -175,9 +151,10 @@ export function sysRender() {
   qryCoarse(function copyTransformToMesh(e, [p, q]) {
     const mesh = meshes.get(e)
     if (mesh !== undefined) {
-      mesh.position.x = p.x
-      mesh.position.y = p.y
-      mesh.position.z = p.z
+      const { position } = mesh
+      position.x = p.x
+      position.y = p.y
+      position.z = p.z
       quaternion.set(q.x, q.y, q.z, q.w)
       mesh.setRotationFromQuaternion(quaternion)
     }
@@ -192,6 +169,7 @@ export function sysRender() {
       mesh.setRotationFromQuaternion(quaternion)
     }
   })
+  useRenderLoop(renderer, scene, camera, target)
 }
 
 const useSky = createImmutableRef(() => {

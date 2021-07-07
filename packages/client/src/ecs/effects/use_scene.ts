@@ -8,7 +8,6 @@ import {
   HemisphereLight,
   Mesh,
   MeshLambertMaterial,
-  Object3D,
   PCFSoftShadowMap,
   PerspectiveCamera,
   PlaneBufferGeometry,
@@ -29,12 +28,7 @@ export const useScene = createImmutableRef(
       2000000,
     )
 
-    const cameraContainer = new Object3D()
-
-    camera.lookAt(0, 0, 0)
-    cameraContainer.add(camera)
-
-    scene.add(cameraContainer)
+    scene.add(camera)
 
     renderer.outputEncoding = sRGBEncoding
     renderer.toneMapping = ACESFilmicToneMapping
@@ -97,7 +91,7 @@ export const useScene = createImmutableRef(
 
     document.body.appendChild(renderer.domElement)
 
-    return { scene, renderer, canvas, camera, cameraContainer }
+    return { scene, renderer, canvas, camera }
   },
   { global: true },
 )

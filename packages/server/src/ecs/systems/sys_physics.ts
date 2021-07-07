@@ -13,7 +13,7 @@ import {
   Rotation,
   Velocity,
 } from "javelin-fps-shared"
-import { useRigidBodies } from "../effects"
+import { useBodies } from "../effects"
 const qryStatic = createQuery(Position, Rotation).not(Velocity)
 const qryDynamic = createQuery(Position, Rotation, Velocity)
 const qryBoxes = createQuery(Position, Rotation, Velocity).not(Player)
@@ -73,7 +73,7 @@ function createPlayerBody(
 export function sysPhysics() {
   const { has } = useWorld()
   const physics = useRapier()
-  const dynamic = useRigidBodies()
+  const dynamic = useBodies()
   // create dynamic rigid bodies
   useMonitor(
     qryDynamic,
@@ -112,7 +112,7 @@ export function sysPhysics() {
 }
 
 export function sysPhysicsBounce() {
-  const dynamic = useRigidBodies()
+  const dynamic = useBodies()
   if (useInterval(5000)) {
     qryBoxes(e => {
       const body = dynamic.get(e)

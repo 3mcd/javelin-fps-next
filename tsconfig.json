@@ -1,25 +1,25 @@
 {
-	"compilerOptions": {
-		"allowSyntheticDefaultImports": true,
-		"composite": true,
-		"declaration": true,
-		"declarationMap": true,
-		"emitDecoratorMetadata": false,
-		"esModuleInterop": true,
-		"experimentalDecorators": true,
-		"forceConsistentCasingInFileNames": true,
-		"importHelpers": false,
-		"importsNotUsedAsValues": "preserve",
-		"incremental": true,
-		"jsx": "react",
-		"module": "esnext",
-		"moduleResolution": "node",
-		"noImplicitAny": true,
-		"removeComments": true,
-		"skipDefaultLibCheck": true,
-		"skipLibCheck": true,
-		"sourceMap": false,
-		"target": "esnext",
-		"typeRoots": ["./node_modules/@types", "./types"]
-	}
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDecoratorMetadata": false,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": false,
+    "importsNotUsedAsValues": "preserve",
+    "incremental": true,
+    "jsx": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "target": "esnext",
+    "typeRoots": ["./node_modules/@types", "./types"]
+  }
 }

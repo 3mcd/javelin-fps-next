@@ -1,19 +1,16 @@
 import { createQuery } from "@javelin/ecs"
 import { Player, Position, InputSample } from "javelin-fps-shared"
-import { useClients, useRigidBodies } from "../effects"
+import { useClients, useBodies } from "../effects"
 import * as Rapier from "@a-type/rapier3d-node"
 import { useRapier } from "./sys_physics"
-
-const ZERO = new Rapier.Vector3(0, 0, 0)
-const CYLINDER = new Rapier.Cylinder(1, 1)
 
 const AXIS_X = new Rapier.Vector3(1, 0, 0)
 const AXIS_Y = new Rapier.Vector3(0, 1, 0)
 
-const tmpVecVel = new Rapier.Vector3()
-const tmpQuatVel = new Rapier.Quaternion()
-const tmpQuatLat = new Rapier.Quaternion()
-const tmpQuatLon = new Rapier.Quaternion()
+const tmpVecVel = new Rapier.Vector3(0, 0, 0)
+const tmpQuatVel = new Rapier.Quaternion(0, 0, 0, 1)
+const tmpQuatLat = new Rapier.Quaternion(0, 0, 0, 1)
+const tmpQuatLon = new Rapier.Quaternion(0, 0, 0, 1)
 
 const qryPlayers = createQuery(Player, Position)
 
@@ -86,8 +83,7 @@ function vmult(vec: any, quat: any) {
 }
 
 // TODO(3mcd): extract to shared lib
-function applyInput(sample: InputSample, rigidBody: any, world: any) {
-  rigidBody.setLinvel(new Rapier.Vector3(0, -9.81, 0))
+function applyInput(sample: InputSample, body: any, world: any) {
   const pointerX = sample[5]
   const pointerY = sample[6]
   if (pointerX || pointerY) {
@@ -95,12 +91,12 @@ function applyInput(sample: InputSample, rigidBody: any, world: any) {
     setFromAxisAngle(tmpQuatLon, AXIS_Y, pointerX)
     multiply(tmpQuatLon, tmpQuatLat)
     normalize(tmpQuatLon)
-    rigidBody.setRotation(tmpQuatLon)
+    body.setRotation(tmpQuatLon)
   }
   const z = sample[2] - sample[0]
   const x = sample[1] - sample[3]
-  const linvel = rigidBody.linvel()
-  const rotation = rigidBody.rotation()
+  const velocity = body.linvel()
+  const rotation = body.rotation()
   tmpVecVel.x = x
   tmpVecVel.y = 0
   tmpVecVel.z = z
@@ -109,43 +105,35 @@ function applyInput(sample: InputSample, rigidBody: any, world: any) {
   tmpQuatVel.z = rotation.z
   tmpQuatVel.w = rotation.w
   vmult(tmpVecVel, tmpQuatVel)
-  linvel.x += tmpQuatVel.x * 10
-  linvel.z += tmpQuatVel.z * 10
-  if (sample[4]) {
-    // (self * a) + b
-    linvel.y = -9.81 * (1 / 60) + 20
-  }
-  rigidBody.setLinvel(linvel, true)
+  velocity.x += tmpQuatVel.x * 10
+  velocity.z += tmpQuatVel.z * 10
+  body.setLinvel(velocity)
 }
 
 export function sysInput() {
   const clients = useClients()
-  const rigidBodies = useRigidBodies()
+  const bodies = useBodies()
   const physics = useRapier()
   qryPlayers((e, [p]) => {
     const client = clients.get(p.clientId)
     if (client === undefined) return
-    const rigidBody = rigidBodies.get(e)
-    // buffering, replay latest input
-    if (client.inputs.length <= 2) {
-      const sample = client.latestInput || client.inputs[0]
-      if (sample && rigidBody) {
-        applyInput(sample, rigidBody, physics)
+    const body = bodies.get(e)
+    if (body) {
+      const velocity = body.linvel()
+      velocity.y = -9.81
+      body.setLinvel(velocity, true)
+    }
+    while (client.inputs.length) {
+      const sample = client.inputs.shift()
+      if (sample && body) {
+        applyInput(sample, body, physics)
         client.latestInput = sample
       }
-    } else {
-      while (client.inputs.length > 2) {
-        const sample = client.inputs.shift()
-        if (sample && rigidBody) {
-          applyInput(sample, rigidBody, physics)
-          client.latestInput = sample
-        }
-      }
     }
-    const translation = rigidBody?.translation()
-    if (translation?.y < 0.5) {
-      translation.y = 0.5
-      rigidBody.setTranslation(translation)
+    const translation = body?.translation()
+    if (translation?.y < 1) {
+      translation.y = 1
+      body.setTranslation(translation, true)
     }
   })
 }

@@ -7,7 +7,7 @@ onClientConnected(client => {
   client.channel.addEventListener("message", ({ data }) => {
     if (typeof data === "string") {
       const message = JSON.parse(data)
-      // assume message is input buffer
+      // TODO(3mcd): we shouldn't assume message is input buffer
       for (let i = 0; i < message.length; i++) {
         client.inputs.push(message[i])
       }
