@@ -22,6 +22,7 @@ import { Client } from "../../net"
 import { createSky } from "../../three/sky"
 import { useScene } from "../effects"
 import { Interp } from "../schema"
+import { WorldTickData } from "../types"
 
 const materials = {
   cube: new MeshLambertMaterial({
@@ -107,7 +108,7 @@ function createBoxMesh(
 }
 
 export function sysRender() {
-  const { latestTickData } = useWorld<Client>()
+  const { latestTickData } = useWorld<WorldTickData>()
   const { scene, camera, renderer } = useScene()
   const meshes = useMeshes()
   function cleanup(e: Entity) {
@@ -118,7 +119,7 @@ export function sysRender() {
   }
   let target: ComponentOf<typeof Position> | undefined
   qryPlayerActors(function lookAtPlayerActor(e, [{ clientId }, p]) {
-    if (clientId === latestTickData?.id) {
+    if (clientId === latestTickData.client.id) {
       target = p
     }
   })

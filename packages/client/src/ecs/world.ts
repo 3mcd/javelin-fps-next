@@ -1,11 +1,12 @@
 import { createWorld } from "@javelin/ecs"
 import { createMessageHandler } from "@javelin/net"
-import { Client } from "../net"
+import { sysPhysics } from "javelin-fps-shared"
 import * as Systems from "./systems"
 import * as Topics from "./topics"
+import { WorldTickData } from "./types"
 
-export const world = createWorld<Client>({
-  systems: Object.values(Systems),
+export const world = createWorld<WorldTickData>({
+  systems: [...Object.values(Systems), sysPhysics],
   topics: Object.values(Topics),
 })
 

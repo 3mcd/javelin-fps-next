@@ -1,33 +1,14 @@
-import * as Rapier from "@a-type/rapier3d-node"
-import {
-  ComponentOf,
-  createImmutableRef,
-  createQuery,
-  useInterval,
-  useMonitor,
-  useWorld,
-} from "@javelin/ecs"
-import { Player, Position, Rotation, Velocity } from "javelin-fps-shared"
-import { useBodies } from "../effects"
+import type * as Rapier from "@dimforge/rapier3d"
+import { ComponentOf, createQuery, useMonitor, useWorld } from "@javelin/ecs"
+import { Player, Position, Rotation, Velocity } from "../../schema"
+import { useBodies, useSimulation } from "../effects"
+import { RapierLib, WorldTickData } from "../types"
+
 const qryStatic = createQuery(Position, Rotation).not(Velocity)
 const qryDynamic = createQuery(Position, Rotation, Velocity)
-const qryBoxes = createQuery(Position, Rotation, Velocity).not(Player)
-
-export const useRapier = createImmutableRef(
-  () => {
-    const world = new Rapier.World(new Rapier.Vector3(0, -9.81, 0))
-    const groundRigidBodyDesc = new Rapier.RigidBodyDesc(
-      Rapier.BodyStatus.Static,
-    )
-    const groundRigidBody = world.createRigidBody(groundRigidBodyDesc)
-    const groundColliderDesc = Rapier.ColliderDesc.cuboid(1000, 0, 1000)
-    world.createCollider(groundColliderDesc, groundRigidBody.handle)
-    return world
-  },
-  { shared: true },
-)
 
 function createBoxBody(
+  Rapier: RapierLib,
   world: Rapier.World,
   { x, y, z }: ComponentOf<typeof Position>,
   { x: qx, y: qy, z: qz, w: qw }: ComponentOf<typeof Rotation>,
@@ -50,6 +31,7 @@ function createBoxBody(
 }
 
 function createPlayerBody(
+  Rapier: RapierLib,
   world: Rapier.World,
   { x, y, z }: ComponentOf<typeof Position>,
   { x: qx, y: qy, z: qz, w: qw }: ComponentOf<typeof Rotation>,
@@ -70,8 +52,11 @@ function createPlayerBody(
 }
 
 export function sysPhysics() {
-  const { has } = useWorld()
-  const physics = useRapier()
+  const {
+    has,
+    latestTickData: { Rapier: RapierLib },
+  } = useWorld<WorldTickData>()
+  const physics = useSimulation()
   const dynamic = useBodies()
   // create dynamic rigid bodies
   useMonitor(
@@ -79,7 +64,13 @@ export function sysPhysics() {
     function addDynamicRigidBody(e, [t, q, v]) {
       dynamic.set(
         e,
-        (has(e, Player) ? createPlayerBody : createBoxBody)(physics, t, q, v),
+        (has(e, Player) ? createPlayerBody : createBoxBody)(
+          RapierLib,
+          physics,
+          t,
+          q,
+          v,
+        ),
       )
     },
     function cleanupDynamicRigidBody(e) {
@@ -90,7 +81,7 @@ export function sysPhysics() {
   )
   // create static rigid bodies
   useMonitor(qryStatic, function addStaticRigidBody(e, [t, q]) {
-    createBoxBody(physics, t, q)
+    createBoxBody(RapierLib, physics, t, q)
   })
   // step simulation
   physics.step()
@@ -107,19 +98,4 @@ export function sysPhysics() {
     q.z = qz
     q.w = qw
   })
-}
-
-export function sysPhysicsBounce() {
-  const dynamic = useBodies()
-  if (useInterval(5000)) {
-    qryBoxes(e => {
-      const body = dynamic.get(e)
-      const impulse = new Rapier.Vector3(
-        (0.5 - Math.random()) * 10,
-        15,
-        (0.5 - Math.random()) * 10,
-      )
-      body.applyImpulse(impulse, true)
-    })
-  }
 }

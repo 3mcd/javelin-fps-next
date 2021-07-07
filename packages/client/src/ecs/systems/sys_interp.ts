@@ -10,6 +10,7 @@ import { Quaternion } from "three"
 import { Client } from "../../net"
 import { createStackPool } from "../../pool"
 import { Interp } from "../schema"
+import { WorldTickData } from "../types"
 import { messageHandler } from "../world"
 
 const qryDynamicControlled = createQuery(Position, Rotation, Player).not(Interp)
@@ -84,7 +85,7 @@ function createInterp(
 }
 
 export function sysInterp() {
-  const { attach, detach, get, latestTickData } = useWorld()
+  const { attach, detach, get, latestTickData } = useWorld<WorldTickData>()
   const { updated } = messageHandler.useInfo()
   const now = performance.now()
 
@@ -96,8 +97,7 @@ export function sysInterp() {
   useMonitor(
     qryDynamicControlled,
     (e, [p, q, pl]) =>
-      pl.clientId !== (latestTickData as Client).id &&
-      attach(e, createInterp(p, q)),
+      pl.clientId !== latestTickData.client.id && attach(e, createInterp(p, q)),
     e => detach(e, get(e, Interp)),
   )
 

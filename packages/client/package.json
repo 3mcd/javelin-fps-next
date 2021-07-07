@@ -17,6 +17,7 @@
   "author": "Eric McDaniel <eric.g.mcdaniel@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@dimforge/rapier3d-module": "workspace:*",
     "@javelin/core": "^1.0.0-alpha.8",
     "@javelin/ecs": "1.0.0-alpha.8",
     "@javelin/net": "1.0.0-alpha.9",

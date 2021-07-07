@@ -7,8 +7,12 @@ export type Client = {
   peer: RTCPeerConnection
   socket: WebSocket
   channel: RTCDataChannel | null
-  inputs: InputSample[]
-  latestInput: InputSample | null
+  input: {
+    buffer: InputSample[]
+    latestSample: InputSample | null
+    latestShrink: number
+    rate: number
+  }
   producer: MessageProducer
   initialized: boolean
 }
@@ -24,8 +28,12 @@ export function createClient(
     peer,
     socket,
     channel,
-    inputs: [],
-    latestInput: null,
+    input: {
+      buffer: [],
+      latestSample: null,
+      latestShrink: 0,
+      rate: 1,
+    },
     producer: createMessageProducer({ maxByteLength: 4000 }),
     initialized: false,
   }

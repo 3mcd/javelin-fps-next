@@ -1,6 +1,8 @@
 import "javelin-fps-shared"
 import { world, messageHandler } from "./ecs"
 import { connect } from "./net"
+import * as Rapier from "@dimforge/rapier3d-module"
+import { RapierLib } from "javelin-fps-shared"
 
 type PV<P> = P extends Promise<infer T> ? T : never
 
@@ -38,8 +40,9 @@ async function main() {
   }
   channel.addEventListener("message", handleMessage)
   socket.addEventListener("message", handleMessage)
+  const worldTickData = { client, Rapier: Rapier as unknown as RapierLib }
   setInterval(function step() {
-    world.step(client)
+    world.step(worldTickData)
   }, (1 / 60) * 1000)
   ;(window as any).world = world
 }

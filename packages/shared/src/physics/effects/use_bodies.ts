@@ -1,4 +1,4 @@
-import { RigidBody } from "@a-type/rapier3d-node"
+import type { RigidBody } from "@dimforge/rapier3d"
 import { createImmutableRef, Entity } from "@javelin/ecs"
 
 export const useBodies = createImmutableRef(

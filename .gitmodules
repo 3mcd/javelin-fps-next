@@ -1,0 +1,7 @@
+[submodule "packages/client/rapier.js"]
+	path = packages/client/rapier.js
+	url = https://github.com/AutomatonSystems/rapier.js
+[submodule "packages/client/lib/rapier.js"]
+	path = packages/client/lib/rapier.js
+	url = https://github.com/AutomatonSystems/rapier.js
+	branch = module-build

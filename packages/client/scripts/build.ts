@@ -14,6 +14,7 @@ build({
   minify: false,
   format: "esm",
   external: ["perf_hooks"],
+  plugins: [],
 })
 
 if (argv.watch) {
