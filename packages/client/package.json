@@ -6,9 +6,11 @@
   "types": "src/index.js",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -b && npm run bundle -- --build",
-    "watch": "tsc -b && (tsc -b -w & npm run bundle -- --watch)",
-    "bundle": "node -r esbuild-register scripts/build.ts",
+    "build:src": "tsc -b",
+    "build:bundle": "node -r esbuild-register scripts/build.ts --build",
+    "build": "run-s build:*",
+    "watch:src": "run-p \"build:src -- -w\" \"build:bundle -- --watch\"",
+    "watch": "run-s build:src watch:src",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

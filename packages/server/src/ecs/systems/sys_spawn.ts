@@ -14,7 +14,7 @@ export function sysSpawnPlayerActors() {
   for (const client of addedClients) {
     create(
       component(Player, { clientId: client.id }),
-      component(Position, { x: 50, y: 50, z: 50 }),
+      component(Position, { x: 0, y: 0, z: 10 }),
       component(Rotation, { w: 1 }),
       component(Velocity, { y: -9.81 }),
     )
@@ -47,7 +47,7 @@ export function sysSpawnMapEntities() {
 export function sysSpawnFun() {
   const { create } = useWorld()
   const count = useRef(0)
-  if (useInterval(50) && count.value < 10) {
+  if (useInterval(50) && count.value < 50) {
     create(
       component(Position, {
         x: (0.5 - Math.random()) * 20,

@@ -24,6 +24,7 @@ import {
   Quaternion,
   Renderer,
   Scene,
+  Vector3,
 } from "three"
 import { Client } from "../../net"
 import { createSky } from "../../three/sky"
@@ -41,12 +42,12 @@ const materials = {
 const geometries = {
   box: new BoxGeometry(),
 }
-const quaternion = new Quaternion()
+const tmpRotation = new Quaternion()
 
 const qrySun = createQuery(Sun)
 const qryWalls = createQuery(Position, Rotation, Wall)
 const qryBodies = createQuery(Position, Rotation).not(Wall)
-const qryInterp = createQuery(Interp, Rotation)
+const qryInterp = createQuery(Interp, Rotation).not(Wall)
 const qryCoarse = createQuery(Position, Rotation).not(Interp)
 const qryPlayerActors = createQuery(Player, Position)
 
@@ -72,16 +73,7 @@ const useRenderLoop = createEffect(() => {
   }
   function loop() {
     if (!running) return
-    if (_renderer) {
-      if (_target) {
-        const { x, y, z } = _target
-        _camera.position.x = x + 15
-        _camera.position.y = y + 40
-        _camera.position.z = z + 15
-        _camera.lookAt(x, y, z)
-      }
-      _renderer.render(_scene, _camera)
-    }
+    _renderer?.render(_scene, _camera)
     requestAnimationFrame(loop)
   }
   api.start()
@@ -95,6 +87,11 @@ const useRenderLoop = createEffect(() => {
     _scene = scene
     _camera = camera
     _target = target
+    if (_target) {
+      const { x, y, z } = _target
+      _camera.position.set(x, y + 30, z + 20)
+      _camera.lookAt(x, y, z)
+    }
     return api
   }
 })
@@ -107,11 +104,9 @@ function createBoxMesh(
   const mesh = new Mesh(geometries.box, material)
   mesh.receiveShadow = true
   mesh.castShadow = true
-  mesh.position.x = x
-  mesh.position.y = y
-  mesh.position.z = z
-  quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
-  mesh.setRotationFromQuaternion(quaternion)
+  mesh.position.set(x, y, z)
+  tmpRotation.set(rotation.x, rotation.y, rotation.z, rotation.w)
+  mesh.setRotationFromQuaternion(tmpRotation)
   return mesh
 }
 
@@ -132,7 +127,7 @@ export function sysRender() {
   })
   useMonitor(
     qryBodies,
-    (e, [t, q]) => {
+    function addBoxToScene(e, [t, q]) {
       const mesh = createBoxMesh(materials.cube, t, q)
       scene.add(mesh)
       meshes.set(e, mesh)
@@ -141,32 +136,28 @@ export function sysRender() {
   )
   useMonitor(
     qryWalls,
-    (e, [t, q]) => {
+    function addWallToScene(e, [t, q]) {
       const mesh = createBoxMesh(materials.wall, t, q)
       scene.add(mesh)
       meshes.set(e, mesh)
     },
     cleanup,
   )
-  qryCoarse(function copyTransformToMesh(e, [p, q]) {
+  qryCoarse(function copyTransformToMesh(e, [{ x, y, z }, q]) {
     const mesh = meshes.get(e)
     if (mesh !== undefined) {
-      const { position } = mesh
-      position.x = p.x
-      position.y = p.y
-      position.z = p.z
-      quaternion.set(q.x, q.y, q.z, q.w)
-      mesh.setRotationFromQuaternion(quaternion)
+      mesh.position.set(x, y, z)
+      tmpRotation.set(q.x, q.y, q.z, q.w)
+      mesh.setRotationFromQuaternion(tmpRotation)
     }
   })
   qryInterp(function copyInterpolatedTransformToMesh(e, [interp]) {
     const mesh = meshes.get(e)
     if (mesh !== undefined) {
-      mesh.position.x = interp.x
-      mesh.position.y = interp.y
-      mesh.position.z = interp.z
-      quaternion.set(interp.qx, interp.qy, interp.qz, interp.qw)
-      mesh.setRotationFromQuaternion(quaternion)
+      const { x, y, z, qx, qy, qz, qw } = interp
+      mesh.position.set(x, y, z)
+      tmpRotation.set(qx, qy, qz, qw)
+      mesh.setRotationFromQuaternion(tmpRotation)
     }
   })
   useRenderLoop(renderer, scene, camera, target)
@@ -180,14 +171,14 @@ const useSky = createImmutableRef(() => {
 export function sysRenderSky() {
   const { scene } = useScene()
   const mesh = useSky()
-  useMonitor(qrySun, _ => {
+  useMonitor(qrySun, function addSkyToScene() {
     mesh.material.uniforms.turbidity.value = 1.25
     mesh.material.uniforms.rayleigh.value = 1
     mesh.material.uniforms.mieCoefficient.value = 0.00335
     mesh.material.uniforms.mieDirectionalG.value = 0.787
     scene.add(mesh)
   })
-  qrySun((_, [sun]) => {
+  qrySun(function updateSunPosition(_, [sun]) {
     const { inclination, azimuth } = sun
     const theta = Math.PI * (inclination - 0.5)
     const phi = 2 * Math.PI * (azimuth - 0.5)

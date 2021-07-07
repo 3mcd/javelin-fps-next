@@ -32,7 +32,7 @@ export const server = http.createServer((req, res) => {
 export const clients = new Map<string, Client>()
 export const onClientConnected = createSignal<Client>()
 export const onClientDisconnected = createSignal<Client>()
-const sockets = new WebSocket.Server({ noServer: true })
+const wss = new WebSocket.Server({ noServer: true })
 
 onClientConnected(client => clients.set(client.id, client))
 onClientDisconnected(client => clients.delete(client.id))
@@ -84,7 +84,7 @@ function registerClient(client: Client) {
   })
 }
 
-sockets.on("connection", async socket => {
+wss.on("connection", async socket => {
   try {
     const result = await iceServers
     const id = crypto.randomBytes(16).toString("hex")
@@ -100,9 +100,7 @@ sockets.on("connection", async socket => {
 
 server.on("upgrade", (req, socket, head) => {
   if (req.url === "/connect") {
-    sockets.handleUpgrade(req, socket, head, ws =>
-      sockets.emit("connection", ws, req),
-    )
+    wss.handleUpgrade(req, socket, head, ws => wss.emit("connection", ws, req))
   } else {
     socket.destroy()
   }

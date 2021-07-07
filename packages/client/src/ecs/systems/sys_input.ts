@@ -1,6 +1,10 @@
 import { useRef, useWorld } from "@javelin/ecs"
 import { Gamepad, Keyboard, Mouse, or } from "contro"
-import { createImmutableRef, InputSample } from "javelin-fps-shared"
+import {
+  ButtonState,
+  createImmutableRef,
+  InputSample,
+} from "javelin-fps-shared"
 import { createStackPool } from "../../pool"
 import { inputTopic } from "../topics"
 
@@ -17,47 +21,6 @@ const controls = {
   right: or(gamepad.button("Right"), keyboard.key("D")),
   jump: or(gamepad.button("A"), keyboard.key("Space")),
   pointer: mouse.pointer(),
-}
-
-function usePointerLock() {
-  const init = useRef(true)
-  if (init.value) {
-    document.addEventListener(
-      "click",
-      function () {
-        if (/Firefox/i.test(navigator.userAgent)) {
-          const onFullscreenChange = () => {
-            if (document.fullscreenElement === document.body) {
-              document.removeEventListener(
-                "onFullscreenChange",
-                onFullscreenChange,
-              )
-              document.removeEventListener(
-                "mozfullscreenchange",
-                onFullscreenChange,
-              )
-              mouse.lockPointer()
-            }
-          }
-          document.addEventListener(
-            "onFullscreenChange",
-            onFullscreenChange,
-            false,
-          )
-          document.addEventListener(
-            "mozfullscreenchange",
-            onFullscreenChange,
-            false,
-          )
-          document.body.requestFullscreen()
-        } else {
-          mouse.lockPointer()
-        }
-      },
-      false,
-    )
-    init.value = false
-  }
 }
 
 const pool = createStackPool<InputSample>(
@@ -77,8 +40,11 @@ const pool = createStackPool<InputSample>(
 )
 
 const useInputBuffer = createImmutableRef(() => [] as InputSample[])
-export function sysPointerLock() {
-  usePointerLock()
+
+type AnyControl = Parameters<typeof or>[0]
+
+function toButtonState(control: AnyControl) {
+  return +Boolean(control.query()) as ButtonState
 }
 
 export function sysInput() {
@@ -87,21 +53,11 @@ export function sysInput() {
   const prevPointerX = useRef(0)
   const prevPointerY = useRef(0)
   const sample: InputSample = pool.retain()
-  if (controls.up.query()) {
-    sample[0] = 1
-  }
-  if (controls.right.query()) {
-    sample[1] = 1
-  }
-  if (controls.down.query()) {
-    sample[2] = 1
-  }
-  if (controls.left.query()) {
-    sample[3] = 1
-  }
-  if (controls.jump.query()) {
-    sample[4] = 1
-  }
+  sample[0] = toButtonState(controls.up)
+  sample[1] = toButtonState(controls.right)
+  sample[2] = toButtonState(controls.down)
+  sample[3] = toButtonState(controls.left)
+  sample[4] = toButtonState(controls.jump)
   sample[5] = prevPointerX.value
   sample[6] = prevPointerY.value
   if (mouse.isPointerLocked()) {

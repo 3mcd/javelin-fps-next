@@ -14,6 +14,7 @@ build({
   minify: argv.build,
   format: "esm",
 })
+
 if (argv.watch) {
   server.start({
     open: true,
@@ -21,3 +22,14 @@ if (argv.watch) {
     root: "public",
   })
 }
+
+process.stdin.resume()
+function onExit(options: { cleanup?: boolean; exit?: boolean }) {
+  if (options.cleanup) server.shutdown()
+  if (options.exit) process.exit()
+}
+process.on("exit", onExit.bind(null, { cleanup: true }))
+process.on("SIGINT", onExit.bind(null, { exit: true }))
+process.on("SIGUSR1", onExit.bind(null, { exit: true }))
+process.on("SIGUSR2", onExit.bind(null, { exit: true }))
+process.on("uncaughtException", onExit.bind(null, { exit: true }))
