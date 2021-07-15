@@ -18,7 +18,6 @@ import {
   Renderer,
   Scene,
 } from "three"
-import { Client } from "../../net"
 import { createSky } from "../../three/sky"
 import { useScene } from "../effects"
 import { Interp } from "../schema"

@@ -18,9 +18,9 @@
   "license": "MIT",
   "dependencies": {
     "@dimforge/rapier3d-module": "workspace:*",
-    "@javelin/core": "^1.0.0-alpha.8",
-    "@javelin/ecs": "1.0.0-alpha.8",
-    "@javelin/net": "1.0.0-alpha.9",
+    "@javelin/core": "^1.0.0-alpha.9",
+    "@javelin/ecs": "1.0.0-alpha.9",
+    "@javelin/net": "1.0.0-alpha.10",
     "@types/live-server": "^1.2.0",
     "@types/minimist": "^1.2.1",
     "contro": "^2.2.0",

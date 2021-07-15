@@ -23,9 +23,14 @@ const worldTickData: WorldTickData = {
   Rapier: Rapier,
 }
 
+let a = performance.now()
+
 function step(clock: Clock) {
+  const b = performance.now()
   worldTickData.clock = clock
   world.step(worldTickData)
+  console.log(b - a)
+  a = b
 }
 
 createHrtimeLoop(step, (1 / 60) * 1000).start()

@@ -34,7 +34,7 @@ export function createClient(
       latestShrink: 0,
       rate: 1,
     },
-    producer: createMessageProducer({ maxByteLength: 4000 }),
+    producer: createMessageProducer({ maxByteLength: Infinity }),
     initialized: false,
   }
 }

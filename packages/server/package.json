@@ -18,10 +18,10 @@
   "dependencies": {
     "@a-type/rapier3d-node": "^0.6.0",
     "@dimforge/rapier3d": "^0.6.0",
-    "@javelin/ecs": "1.0.0-alpha.8",
+    "@javelin/ecs": "1.0.0-alpha.9",
     "@javelin/hrtime-loop": "1.0.0-alpha.4",
-    "@javelin/net": "1.0.0-alpha.9",
-    "@javelin/pack": "^1.0.0-alpha.8",
+    "@javelin/net": "1.0.0-alpha.10",
+    "@javelin/pack": "^1.0.0-alpha.9",
     "@types/ws": "^7.4.4",
     "javelin-fps-shared": "workspace:^0.0.1",
     "twilio": "^3.63.1",
